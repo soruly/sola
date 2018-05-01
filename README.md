@@ -9,7 +9,7 @@ Scene search On Liresolr for Animation.
 
 Making use of a modified version of [LIRE Solr](https://github.com/dermotte/liresolr) to look up video scenes with an image. (accurate to 0.01s)
 
-This is exactly the video indexing scripts used by Anime Scene Search service - [whatanime.ga](https://whatanime.ga).  
+This is exactly the video indexing scripts used by Anime Scene Search service - [whatanime.ga](https://github.com/soruly/whatanime.ga).  
 sola is not limited to use with anime. As long as the video is in mp4 format, this can be used for any video.
 
 ## Demo
@@ -60,6 +60,18 @@ This scene can be found in `98693/[Neo.sub][Slow Start][07][GB][1080P].mp4` at t
 - Search multiple cores at once
 - Scalable to search 700 million frames in <3 seconds
 
+## Hardware requirements
+
+Indexing:  
+With i7-3770, a 24-minute 720p video takes ~50 seconds to hash with one worker.  
+It can run 2-3 workers in parallel to fully utilize CPU.
+
+Searching:  
+With i7-3770 and 8GB RAM, searching through a 10GB solr core takes ~1s
+
+Performance varies a lot with your data size, configurations and settings.  
+For details, please refer to [Optimization and Tuning](#optimization-and-tuning).
+
 ## Prerequisites
 
 - Linux (only tested on Fedora 27)
@@ -69,25 +81,6 @@ This scene can be found in `98693/[Neo.sub][Slow Start][07][GB][1080P].mp4` at t
 - solr 7.x
 - RabbitMQ 3.6+
 - MariaDB 10.2+
-
-To check the versions:
-```
-node -v
-# v8.11.0
-java -version
-# openjdk version "1.8.0_171"
-# OpenJDK Runtime Environment (build 1.8.0_171-b10)
-# OpenJDK 64-Bit Server VM (build 25.171-b10, mixed mode)
-/opt/solr/bin/solr -version
-# 7.2.1
-sudo rabbitmqctl status | grep '"RabbitMQ"'
-# {rabbit,"RabbitMQ","3.6.15"},
-ffmpeg -version
-# ffmpeg version 3.3.6 Copyright (c) 2000-2017 the FFmpeg developers
-# built with gcc 7 (GCC)
-mysql -V
-# mysql  Ver 15.1 Distrib 10.2.14-MariaDB, for Linux (x86_64) using readline 5.1
-```
 
 ## Installing Prerequisites
 
@@ -111,6 +104,25 @@ unzip solr-7.2.1.zip
 ./solr-7.2.1/bin/install_solr_service.sh solr-7.2.1.zip -f -n
 sudo systemctl enable solr
 sudo systemctl start solr
+```
+
+Verify the installed versions:
+```
+node -v
+# v8.11.0
+java -version
+# openjdk version "1.8.0_171"
+# OpenJDK Runtime Environment (build 1.8.0_171-b10)
+# OpenJDK 64-Bit Server VM (build 25.171-b10, mixed mode)
+/opt/solr/bin/solr -version
+# 7.2.1
+sudo rabbitmqctl status | grep '"RabbitMQ"'
+# {rabbit,"RabbitMQ","3.6.15"},
+ffmpeg -version
+# ffmpeg version 3.3.6 Copyright (c) 2000-2017 the FFmpeg developers
+# built with gcc 7 (GCC)
+mysql -V
+# mysql  Ver 15.1 Distrib 10.2.14-MariaDB, for Linux (x86_64) using readline 5.1
 ```
 
 ## Getting Started
@@ -153,18 +165,18 @@ Leave `telegram_channel_url` null to disable pushing notifications to telegram.
 Example config
 ```
 {
-  "mariadb_host": "192.168.1.100", # make sure the DB is accessible from all workers
+  "mariadb_host": "192.168.1.100",                    # make sure the database is accessible from all workers
   "mariadb_user": "whatanime",
   "mariadb_pass": "whatanime",
-  "mariadb_db": "whatanime", # you need to create this db yourself
+  "mariadb_db": "whatanime",                          # you need to create this db yourself
   "solr_endpoint": "http://192.168.1.100:8983/solr/", # make sure this endpoint is accessible from all workers
-  "solr_core": "lire", # cores name prefix, cores will be created as lire_0, lire_1, lire_2
-  "anime_path": "/mnt/nfs/data/anilist/", # make sure the path is accessible from all workers
-  "hash_path": "/mnt/nfs/data/anilist_hash/", # make sure the path is accessible from all workers
-  "amqp_server": "amqp://sola:sola@192.168.1.100", # amqp://username:password@host
-  "amqp_hash_queue": "hash_video", # queue name
-  "amqp_load_queue": "load_hash", # created automatically, usually no need to change this
-  "telegram_channel_url": null # https://api.telegram.org/botxxxxx:xxxxxxxxxxxxx/sendMessage
+  "solr_core": "lire",                                # cores will be created as lire_0, lire_1, lire_2
+  "anime_path": "/mnt/nfs/data/anilist/",             # make sure the path is accessible from all workers
+  "hash_path": "/mnt/nfs/data/anilist_hash/",         # make sure the path is accessible from all workers
+  "amqp_server": "amqp://sola:sola@192.168.1.100",    # amqp://username:password@host
+  "amqp_hash_queue": "hash_video",                    # queue name
+  "amqp_load_queue": "load_hash",                     # created automatically, usually no need to change this
+  "telegram_channel_url": null                        # https://api.telegram.org/botxxxx:xxxxxxxx/sendMessage
 }
 ```
 
@@ -219,3 +231,42 @@ npm run delete-core
 If you wish to run tasks in background, you can use [pm2](https://github.com/Unitech/pm2) or simply run in a detachable shell like [GNU screen](https://www.gnu.org/software/screen/).
 
 To cleanup from any dirty worker state, just stop all workers and `rm -rf /tmp/sola`
+
+## Optimization and Tuning
+
+### Storage space
+
+Compressed hash (*.xml.xz) files takes ~375KB per 24-minute anime.  
+This assume the thumbnails are extracted at 12 fps (default).
+Storage for compressed hash does not have to be fast. Magnetic disks are fine.  
+(Side note: an archive of all *.xml.xz files from whatanime.ga can be downloaded [here](https://nyaa.si/view/1023979))
+
+Each doc (hash) in solr takes ~200 bytes.  
+(ref: the size of solr core on whatanime.ga is 135GB for 722 million frames)  
+Storage device of solr core must be fast. Minumum: SATA SSD, Recommended: PCI-E/nvme SSD  
+A 24-minute video has ~34560 frames. Extracting at 12 fps yields ~17280 frames. This is the number of frames in compressed hash (*.xml.xz). Before being loaded into solr, the load-hash worker use a running window to deduplicate frames of exact hash. Typically this deduplication ratio is 40%, so only 10368 frame hashes are actually loaded into solr. Which is ~2025KB in solr for each 24-minute video.
+
+### Memory
+
+Indexing is not memory consuming, each worker use no more than 1GB RAM. (<100MB idle)  
+To have a reasonabily fast search speed, your system RAM should be at least 30% the size of solr core. (i.e. 32GB RAM for a 100GB solr core)  
+You can set 2-16GB RAM for solr in `/etc/default/solr.in.sh`. Do not allocate too much (no more than 50% of your RAM). For the reset of your RAM, leave them be, and they will become file system cache (OS cache), which cache file contents on disks.
+
+### Processor
+
+By default, `sudo npm run create-core` will create 4 solr cores.  
+You can specify number of solr cores by `sudo npm run create-core -- 8` for creating 8 cores  
+This does not have to match the number of CPU cores / threads you have. Even for CPUs with 32 threads you may see diminishing returns having 32 solr cores.
+
+With i7-3770, a 24-minute 720p video takes ~50 seconds to hash with one worker. 
+80-90% of the time are spent on ffmpeg extracting thumnails.  
+You need to run 2-3 workers in parallel to fully utilize the CPU.  
+You can take a look at the code in `src/lib/hash.js` for hard-coded parameters.
+
+### Search parameters
+
+`candidates=1000000` 1 million is usually accurate and fast enough. Search would be slow above 5 million candidates. Setting candidates to low values (e.g. 100k) would greatly improve search performance but reduce accuracy. But as long as your most populated hash is less than this value, the search is accurate as it covers 100% records in solr.
+
+`rows=10` chaning this has no effect on accuracy. It merely filter out returning results after search completed and sorted. 
+
+`accuracy=0` the param is misleading here. The number here is used to choose "clusters", or "hash groups" to search. 0 is the least populated cluster that may found a match. 1 is the second least populated, and so on. If you cannot find any matches after searching first 6 clusters, you are unlikely to find any better matches beyond that. This is because of Locality-sensitive hashing.

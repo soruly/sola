@@ -1,0 +1,14 @@
+{
+  "mariadb_host": "192.168.1.100",
+  "mariadb_user": "whatanime",
+  "mariadb_pass": "whatanime",
+  "mariadb_db": "whatanime",
+  "solr_endpoint": "http://192.168.1.100:8983/solr/",
+  "solr_core": "lire",
+  "anime_path": "/mnt/nfs/data/anilist/",
+  "hash_path": "/mnt/nfs/data/anilist_hash/",
+  "amqp_server": "amqp://sola:sola@192.168.1.100",
+  "amqp_hash_queue": "hash_video",
+  "amqp_load_queue": "load_hash",
+  "telegram_channel_url": null
+}

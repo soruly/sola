@@ -1,0 +1,37 @@
+{
+  "name": "sola",
+  "version": "0.1.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "check-new": "node src/check-new.js",
+    "create-core": "node src/create-core.js",
+    "delete-core": "node src/delete-core.js",
+    "hash": "node src/hash-video.js",
+    "load": "node src/load-hash.js",
+    "watch": "node src/watch.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soruly/sola.git"
+  },
+  "author": "soruly",
+  "license": "GPL-3.0-only",
+  "bugs": {
+    "url": "https://github.com/soruly/sola/issues"
+  },
+  "homepage": "https://github.com/soruly/sola#readme",
+  "dependencies": {
+    "amqplib": "0.5.2",
+    "chokidar": "2.0.3",
+    "fs-extra": "5.0.0",
+    "glob": "7.1.2",
+    "lzma-native": "3.0.7",
+    "promise-mysql": "3.2.1",
+    "request": "2.85.0",
+    "request-promise": "4.2.2",
+    "uuid": "3.2.1",
+    "xmldoc": "1.1.0"
+  }
+}

@@ -176,6 +176,7 @@ Example config
   "amqp_server": "amqp://sola:sola@192.168.1.100",    # amqp://username:password@host
   "amqp_hash_queue": "hash_video",                    # queue name
   "amqp_load_queue": "load_hash",                     # created automatically, usually no need to change this
+  "discord_webhook_url": null,                        # https://discordapp.com/api/webhooks/xxxxx/xxxxxxxxxxx
   "telegram_channel_url": null                        # https://api.telegram.org/botxxxx:xxxxxxxx/sendMessage
 }
 ```

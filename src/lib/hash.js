@@ -58,7 +58,7 @@ const hash = async (anime_path, hash_path, relativePath) => {
     "java",
     [
       "-cp",
-      "/home/soruly/project/liresolr/dist/*",
+      "/opt/solr/server/solr-webapp/webapp/WEB-INF/lib/*",
       "net.semanticmetadata.lire.solr.indexing.ParallelSolrIndexer",
       "-i",
       thumbnailListPath,

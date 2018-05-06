@@ -1,0 +1,45 @@
+version: '3'
+
+volumes:
+  dbdata:
+  # solr_data:
+
+services:
+  database:
+    image: mariadb:10.2
+    ports:
+      - "13306:3306"
+    restart: always
+    volumes:
+      - dbdata:/var/lib/mysql
+    environment:
+      - MYSQL_USER=${MARIADB_USER}
+      - MYSQL_PASSWORD=${MARIADB_PASSWORD}
+      - MYSQL_DATABASE=${MARIADB_DATABASE}
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+    networks:
+      sola_net:
+
+  rabbitmq:
+    image: rabbitmq:3.6.14-management
+    volumes:
+      - ./docker/rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
+      - ./docker/rabbitmq/definitions2.json:/etc/rabbitmq/definitions.json:ro
+    ports:
+      - "15672:15672"
+    networks:
+      sola_net:
+
+  liresolr:
+    image: soruly/liresolr
+    # volumes:
+      # - /var/solr:/var/solr
+    expose:
+      - "8983"
+    # ports:
+      # - "18983:8983"
+    networks:
+      sola_net:
+
+networks:
+  sola_net:

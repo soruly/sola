@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  # java8, node, 
+  # connect 2 mariadb, rabbitmq
+  # ffmepg (jrottenberg/ffmpeg:alpine-3.3)
+  hash_video_worker:
+    build: ./docker/worker
+    image: sola:worker
+    working_dir: /app
+    env_file: .env
+    command: npm run hash
+    volumes:
+      - ./:/app
+      - ./solr_lib/:/opt/solr/server/solr-webapp/webapp/WEB-INF/lib/
+    networks:
+      sola_net:
+
+  load_hash_worker:
+    image: node:8-alpine
+    working_dir: /app
+    env_file: .env
+    command: npm run load
+    volumes:
+      - ./:/app
+    networks:
+      sola_net:
+  
+  message_feeder:
+    image: node:8-alpine
+    working_dir: /app
+    env_file: .env
+    command: npm run check-new
+    volumes:
+      - ./:/app
+    networks:
+      sola_net:
+
+networks:
+  sola_net:

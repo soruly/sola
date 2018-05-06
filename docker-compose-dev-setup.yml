@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  # java8, node, 
+  # connect 2 mariadb, rabbitmq
+  # ffmepg (jrottenberg/ffmpeg:alpine-3.3)
+  package_installer:
+    image: node:8-alpine
+    working_dir: /app
+    command: yarn
+    volumes:
+      - ./:/app
+
+  # jar_packer:
+  #   image: alpine-3.6
+  #   working_dir: /sola_lib
+  #   command: wget https://github.com/soruly/liresolr/archive/7.2.1-beta.tar.gz
+  #   pand
+
+
+  # # Create solr core
+  # solr_setup:
+  #   image: node:8-alpine
+  #   command: 
+
+

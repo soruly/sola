@@ -25,7 +25,7 @@
   "dependencies": {
     "amqplib": "0.5.2",
     "chokidar": "2.0.3",
-    "fs-extra": "5.0.0",
+    "fs-extra": "6.0.0",
     "glob": "7.1.2",
     "lzma-native": "3.0.7",
     "promise-mysql": "3.2.1",

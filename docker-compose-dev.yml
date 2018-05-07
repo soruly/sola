@@ -24,7 +24,7 @@ services:
     image: rabbitmq:3.6.14-management
     volumes:
       - ./docker/rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
-      - ./docker/rabbitmq/definitions2.json:/etc/rabbitmq/definitions.json:ro
+      - ./docker/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
     ports:
       - "15672:15672"
     networks:

@@ -9,7 +9,7 @@ services:
     image: sola:worker
     working_dir: /app
     env_file: .env
-    command: npm run hash
+    command: yarn run hash
     volumes:
       - ./:/app
       - ./solr_lib/:/opt/solr/server/solr-webapp/webapp/WEB-INF/lib/
@@ -20,7 +20,7 @@ services:
     image: node:8-alpine
     working_dir: /app
     env_file: .env
-    command: npm run load
+    command: yarn run load
     volumes:
       - ./:/app
     networks:
@@ -30,7 +30,7 @@ services:
     image: node:8-alpine
     working_dir: /app
     env_file: .env
-    command: npm run check-new
+    command: yarn run check-new
     volumes:
       - ./:/app
     networks:

@@ -4,6 +4,7 @@
 [![License](https://img.shields.io/github/license/soruly/sola.svg)](https://github.com/soruly/sola/blob/master/LICENSE)
 [![Discord](https://img.shields.io/discord/437578425767559188.svg)](https://discord.gg/K9jn6Kj)
 [![Donate](https://img.shields.io/badge/donate-patreon-orange.svg)](https://www.patreon.com/soruly)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fsoruly%2Fsola.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fsoruly%2Fsola?ref=badge_shield)
 
 Scene search On Liresolr for Animation.
 
@@ -271,3 +272,7 @@ You can take a look at the code in `src/lib/hash.js` for hard-coded parameters.
 `rows=10` chaning this has no effect on accuracy. It merely filter out returning results after search completed and sorted. 
 
 `accuracy=0` the param is misleading here. The number here is used to choose "clusters", or "hash groups" to search. 0 is the least populated cluster that may found a match. 1 is the second least populated, and so on. If you cannot find any matches after searching first 6 clusters, you are unlikely to find any better matches beyond that. This is because of Locality-sensitive hashing.
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fsoruly%2Fsola.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fsoruly%2Fsola?ref=badge_large)

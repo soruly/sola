@@ -31,7 +31,12 @@ const {
     if (result[0].status === "HASHED") {
       await conn.query(mysql.format("UPDATE files SET status='LOADING' WHERE path=?", [file]));
       conn.commit();
-      await load(hash_path, file, solr_endpoint, solr_core);
+      try {
+        await load(hash_path, file, solr_endpoint, solr_core);
+      } catch (e) {
+        await conn.query(mysql.format("UPDATE files SET status='HASHED' WHERE path=?", [file]));
+        return;
+      }
       await conn.query(mysql.format("UPDATE files SET status='LOADED' WHERE path=?", [file]));
       if (telegram_channel_url) {
         console.log("Posting notification to telegram");

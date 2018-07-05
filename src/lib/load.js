@@ -61,39 +61,37 @@ const load = (hash_path, relativePath, solr_endpoint, core) => new Promise(async
 
   // fs.writeFileSync("debug.xml", xml);
 
-  const coreInfo = await request({
-    method: "GET",
-    uri: `${solr_endpoint}admin/cores?wt=json`,
-    json: true
-  });
+  try {
+    const coreInfo = await request({
+      method: "GET",
+      uri: `${solr_endpoint}admin/cores?wt=json`,
+      json: true
+    });
 
-  const selectedCoreName = Object.values(coreInfo.status)
-    .filter((e) => e.name.indexOf(`${core}_`) === 0)
-    .sort((a, b) => a.index.numDocs - b.index.numDocs)[0].name; // choose least populated core
+    const selectedCoreName = Object.values(coreInfo.status)
+      .filter((e) => e.name.indexOf(`${core}_`) === 0)
+      .sort((a, b) => a.index.numDocs - b.index.numDocs)[0].name; // choose least populated core
 
-  console.log(`Uploading xml to solr core ${selectedCoreName}`);
-  const response = await request({
-    method: "POST",
-    uri: `${solr_endpoint}${selectedCoreName}/update?wt=json`,
-    headers: {"Content-Type": "text/xml"},
-    body: xml
-  });
-  if (!response) {
-    reject(new Error());
+    console.log(`Uploading xml to solr core ${selectedCoreName}`);
+    await request({
+      method: "POST",
+      uri: `${solr_endpoint}${selectedCoreName}/update?wt=json`,
+      headers: {"Content-Type": "text/xml"},
+      body: xml
+    });
+
+    await request({
+      method: "POST",
+      uri: `${solr_endpoint}${selectedCoreName}/update?wt=json`,
+      headers: {"Content-Type": "text/xml"},
+      body: "<commit/>"
+    });
+
+    console.log("Completed");
+    resolve();
+  } catch (e) {
+    reject(new Error(e));
   }
-
-  const commit = await request({
-    method: "POST",
-    uri: `${solr_endpoint}${selectedCoreName}/update?wt=json`,
-    headers: {"Content-Type": "text/xml"},
-    body: "<commit/>"
-  });
-  if (!commit) {
-    reject(new Error());
-  }
-
-  console.log("Completed");
-  resolve();
 });
 
 module.exports = {load};

@@ -11,5 +11,6 @@
   "amqp_hash_queue": "hash_video",
   "amqp_load_queue": "load_hash",
   "discord_webhook_url": null,
+  "telegram_channel_id": null,
   "telegram_channel_url": null
 }

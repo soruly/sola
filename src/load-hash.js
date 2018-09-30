@@ -5,7 +5,7 @@ const {load} = require("./lib/load");
 const {
   amqp_server, amqp_load_queue,
   mariadb_host, mariadb_user, mariadb_pass, mariadb_db,
-  discord_webhook_url, telegram_channel_url
+  discord_webhook_url, telegram_channel_id, telegram_channel_url
 } = require("../config");
 
 (async () => {
@@ -38,13 +38,13 @@ const {
         return;
       }
       await conn.query(mysql.format("UPDATE files SET status='LOADED' WHERE path=?", [file]));
-      if (telegram_channel_url) {
+      if (telegram_channel_id && telegram_channel_url) {
         console.log("Posting notification to telegram");
         await request({
           method: "POST",
           uri: telegram_channel_url,
           body: {
-            chat_id: "@whatanimeupdates",
+            chat_id: telegram_channel_id,
             text: file.split("/")[1]
           },
           json: true

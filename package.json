@@ -17,7 +17,7 @@
     "url": "git+https://github.com/soruly/sola.git"
   },
   "author": "soruly",
-  "license": "GPL-3.0-only",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/soruly/sola/issues"
   },

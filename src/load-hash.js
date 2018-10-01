@@ -1,6 +1,7 @@
 const mysql = require("promise-mysql");
 const amqp = require("amqplib");
 const fetch = require("node-fetch");
+const {URLSearchParams} = require("url");
 const {load} = require("./lib/load");
 const {
   amqp_server, amqp_load_queue,
@@ -44,10 +45,16 @@ const {
           telegram_channel_url,
           {
             method: "POST",
-            body: {
-              chat_id: telegram_channel_id,
-              text: file.split("/")[1]
-            }
+            body: new URLSearchParams([
+              [
+                "chat_id",
+                telegram_channel_id
+              ],
+              [
+                "text",
+                file.split("/")[1]
+              ]
+            ])
           });
       }
       if (discord_webhook_url) {
@@ -56,7 +63,12 @@ const {
           discord_webhook_url,
           {
             method: "POST",
-            body: {content: file.split("/")[1]}
+            body: new URLSearchParams([
+              [
+                "content",
+                file.split("/")[1]
+              ]
+            ])
           });
       }
     } else {

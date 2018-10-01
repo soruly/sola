@@ -22,7 +22,7 @@ const {
   // console.log("Creating file table if not exist");
   await pool.query(`CREATE TABLE IF NOT EXISTS files (
             path varchar(768) COLLATE utf8mb4_unicode_ci NOT NULL,
-            status enum('NEW','HASHING','HASHED','LOADED') COLLATE utf8mb4_unicode_ci NOT NULL,
+            status enum('NEW','HASHING','HASHED','LOADING','LOADED') COLLATE utf8mb4_unicode_ci NOT NULL,
             PRIMARY KEY (path)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
 

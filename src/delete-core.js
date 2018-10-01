@@ -1,16 +1,12 @@
 const path = require("path");
-const request = require("request-promise");
+const fetch = require("node-fetch");
 const fs = require("fs-extra");
 
 const {solr_endpoint, solr_core} = require("../config");
 
 const deleteCore = async (coreName) => {
   console.log(`Unloading existing core ${coreName}`);
-  await request({
-    method: "GET",
-    uri: `${solr_endpoint}admin/cores?action=UNLOAD&core=${coreName}&wt=json`,
-    json: true
-  });
+  await fetch(`${solr_endpoint}admin/cores?action=UNLOAD&core=${coreName}&wt=json`);
 
 
   const instanceDir = path.join("/var/solr/data", coreName);
@@ -22,11 +18,7 @@ const deleteCore = async (coreName) => {
 };
 
 (async () => {
-  const result = await request({
-    method: "GET",
-    uri: `${solr_endpoint}admin/cores?wt=json`,
-    json: true
-  });
+  const result = await fetch(`${solr_endpoint}admin/cores?wt=json`).then((res) => res.json());
 
   Object.keys(result.status) // get the names of all loaded cores
     .filter((coreName) => coreName.indexOf(`${solr_core}_`) === 0) // select all cores of the name

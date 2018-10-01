@@ -1,5 +1,6 @@
 # sola
 
+[![Build Status](https://travis-ci.org/soruly/sola.svg?branch=master)](https://travis-ci.org/soruly/sola)
 [![](https://david-dm.org/soruly/sola/status.svg)](https://david-dm.org/soruly/sola)
 [![License](https://img.shields.io/github/license/soruly/sola.svg)](https://github.com/soruly/sola/blob/master/LICENSE)
 [![Discord](https://img.shields.io/discord/437578425767559188.svg)](https://discord.gg/K9jn6Kj)
@@ -177,6 +178,7 @@ Example config
   "amqp_hash_queue": "hash_video",                    # queue name
   "amqp_load_queue": "load_hash",                     # created automatically, usually no need to change this
   "discord_webhook_url": null,                        # https://discordapp.com/api/webhooks/xxxxx/xxxxxxxxxxx
+  "telegram_channel_id": null,                        # @your_channel_name
   "telegram_channel_url": null                        # https://api.telegram.org/botxxxx:xxxxxxxx/sendMessage
 }
 ```

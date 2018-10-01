@@ -1,25 +1,17 @@
 const path = require("path");
 const child_process = require("child_process");
 const fs = require("fs-extra");
-const request = require("request-promise");
+const fetch = require("node-fetch");
 
 const {solr_endpoint, solr_core} = require("../config");
 
 const createCore = async (coreName) => {
   console.log(`Check if solr core ${coreName} already loaded`);
-  const result = await request({
-    method: "GET",
-    uri: `${solr_endpoint}admin/cores?wt=json`,
-    json: true
-  });
+  const result = await fetch(`${solr_endpoint}admin/cores?wt=json`).then((res) => res.json());
 
   if (Object.keys(result.status).includes(coreName)) {
     console.log(`Unloading existing core ${coreName}`);
-    await request({
-      method: "GET",
-      uri: `${solr_endpoint}admin/cores?action=UNLOAD&core=${coreName}&wt=json`,
-      json: true
-    });
+    await fetch(`${solr_endpoint}admin/cores?action=UNLOAD&core=${coreName}&wt=json`);
   }
 
   const instanceDir = path.join("/var/solr/data", coreName);
@@ -36,15 +28,12 @@ const createCore = async (coreName) => {
   fs.copySync(path.join(__dirname, "../solr-conf", "schema.xml"), schema);
   child_process.execSync(`chown -R solr:solr "${instanceDir}"`);
   // child_process.execSync(`chown -R 8983:8983 "${instanceDir}"`); // if using docker image
-  request({
-    method: "GET",
-    uri: `${solr_endpoint}admin/cores?action=CREATE&name=${coreName}&instanceDir=${instanceDir}&dataDir=${dataDir}&config=${config}&schema=${schema}`
-  })
+  fetch(`${solr_endpoint}admin/cores?action=CREATE&name=${coreName}&instanceDir=${instanceDir}&dataDir=${dataDir}&config=${config}&schema=${schema}`)
     .then((response) => {
       console.log(response);
     })
     .catch((error) => {
-      console.log(error.response.body);
+      console.log(error);
     });
 };
 

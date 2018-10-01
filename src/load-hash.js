@@ -1,11 +1,12 @@
 const mysql = require("promise-mysql");
 const amqp = require("amqplib");
-const request = require("request-promise");
+const fetch = require("node-fetch");
+const {URLSearchParams} = require("url");
 const {load} = require("./lib/load");
 const {
   amqp_server, amqp_load_queue,
   mariadb_host, mariadb_user, mariadb_pass, mariadb_db,
-  discord_webhook_url, telegram_channel_url
+  discord_webhook_url, telegram_channel_id, telegram_channel_url
 } = require("../config");
 
 (async () => {
@@ -31,28 +32,44 @@ const {
     if (result[0].status === "HASHED") {
       await conn.query(mysql.format("UPDATE files SET status='LOADING' WHERE path=?", [file]));
       conn.commit();
-      await load(hash_path, file, solr_endpoint, solr_core);
+      try {
+        await load(hash_path, file, solr_endpoint, solr_core);
+      } catch (e) {
+        await conn.query(mysql.format("UPDATE files SET status='HASHED' WHERE path=?", [file]));
+        return;
+      }
       await conn.query(mysql.format("UPDATE files SET status='LOADED' WHERE path=?", [file]));
-      if (telegram_channel_url) {
+      if (telegram_channel_id && telegram_channel_url) {
         console.log("Posting notification to telegram");
-        await request({
-          method: "POST",
-          uri: telegram_channel_url,
-          body: {
-            chat_id: "@whatanimeupdates",
-            text: file.split("/")[1]
-          },
-          json: true
-        });
+        await fetch(
+          telegram_channel_url,
+          {
+            method: "POST",
+            body: new URLSearchParams([
+              [
+                "chat_id",
+                telegram_channel_id
+              ],
+              [
+                "text",
+                file.split("/")[1]
+              ]
+            ])
+          });
       }
       if (discord_webhook_url) {
         console.log("Posting notification to discord");
-        await request({
-          method: "POST",
-          uri: discord_webhook_url,
-          body: {content: file.split("/")[1]},
-          json: true
-        });
+        await fetch(
+          discord_webhook_url,
+          {
+            method: "POST",
+            body: new URLSearchParams([
+              [
+                "content",
+                file.split("/")[1]
+              ]
+            ])
+          });
       }
     } else {
       console.log(`File status is [${result[0].status}] , skip`);

@@ -1,6 +1,6 @@
 const path = require("path");
 const fs = require("fs-extra");
-const request = require("request-promise");
+const fetch = require("node-fetch");
 const xmldoc = require("xmldoc");
 const lzma = require("lzma-native");
 
@@ -62,30 +62,28 @@ const load = (hash_path, relativePath, solr_endpoint, core) => new Promise(async
   // fs.writeFileSync("debug.xml", xml);
 
   try {
-    const coreInfo = await request({
-      method: "GET",
-      uri: `${solr_endpoint}admin/cores?wt=json`,
-      json: true
-    });
+    const coreInfo = await fetch(`${solr_endpoint}admin/cores?wt=json`).then((res) => res.json());
 
     const selectedCoreName = Object.values(coreInfo.status)
       .filter((e) => e.name.indexOf(`${core}_`) === 0)
       .sort((a, b) => a.index.numDocs - b.index.numDocs)[0].name; // choose least populated core
 
     console.log(`Uploading xml to solr core ${selectedCoreName}`);
-    await request({
-      method: "POST",
-      uri: `${solr_endpoint}${selectedCoreName}/update?wt=json`,
-      headers: {"Content-Type": "text/xml"},
-      body: xml
-    });
+    await fetch(
+      `${solr_endpoint}${selectedCoreName}/update?wt=json`,
+      {
+        method: "POST",
+        headers: {"Content-Type": "text/xml"},
+        body: xml
+      });
 
-    await request({
-      method: "POST",
-      uri: `${solr_endpoint}${selectedCoreName}/update?wt=json`,
-      headers: {"Content-Type": "text/xml"},
-      body: "<commit/>"
-    });
+    await fetch(
+      `${solr_endpoint}${selectedCoreName}/update?wt=json`,
+      {
+        method: "POST",
+        headers: {"Content-Type": "text/xml"},
+        body: "<commit/>"
+      });
 
     console.log("Completed");
     resolve();

@@ -27,7 +27,7 @@ const createCore = async (coreName) => {
   fs.copySync(path.join(__dirname, "../solr-conf", "solrconfig.xml"), config);
   fs.copySync(path.join(__dirname, "../solr-conf", "schema.xml"), schema);
   child_process.execSync(`chown -R solr:solr "${instanceDir}"`);
-  // child_process.execSync(`chown -R 8983:8983 "${instanceDir}"`); // if using docker image
+  // `${solr_endpoint}admin/cores?action=CREATE&name=${coreName}&instanceDir=/opt/solr_data/lire_0&configSet=liresolr_conf` for docker
   fetch(`${solr_endpoint}admin/cores?action=CREATE&name=${coreName}&instanceDir=${instanceDir}&dataDir=${dataDir}&config=${config}&schema=${schema}`)
     .then((response) => {
       console.log(response);

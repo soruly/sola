@@ -154,7 +154,9 @@ sudo systemctl restart solr
 ### 2c. Using docker:
 The docker image for the modified liresolr: [https://hub.docker.com/r/soruly/liresolr/](https://hub.docker.com/r/soruly/liresolr/)
 ```
-docker run -d -p 8983:8983 --name liresolr --rm -v /var/solr:/var/solr soruly/liresolr
+mkdir ~/solr_data
+sudo chown 8983:8983 ~/solr_data
+docker run -d -p 8983:8983 --name liresolr --rm -v ~/solr_data:/opt/solr_data soruly/liresolr
 ```
 
 ### 3. Configure your settings in `config.json`

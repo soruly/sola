@@ -58,7 +58,7 @@ const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
     "java",
     [
       "-cp",
-      "/opt/solr/server/solr-webapp/webapp/WEB-INF/lib/*",
+      "docker/*",
       "net.semanticmetadata.lire.solr.indexing.ParallelSolrIndexer",
       "-i",
       thumbnailListPath,

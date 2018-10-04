@@ -27,7 +27,7 @@ const {
   await channel.prefetch(1);
   console.log(`Waiting for messages in ${SOLA_MQ_LOAD}. To exit press CTRL+C`);
   channel.consume(SOLA_MQ_LOAD, async (msg) => {
-    const {SOLA_HASH_PATH, file, solr_endpoint, solr_core} = JSON.parse(msg.content.toString());
+    const {SOLA_HASH_PATH, file, SOLA_SOLR_URL, SOLA_SOLR_CORE} = JSON.parse(msg.content.toString());
     console.log(`Received ${SOLA_MQ_LOAD} job for ${file}`);
     await conn.beginTransaction();
     const result = await conn.query(mysql.format("SELECT status FROM files WHERE path=?", [file]));
@@ -35,7 +35,7 @@ const {
       await conn.query(mysql.format("UPDATE files SET status='LOADING' WHERE path=?", [file]));
       conn.commit();
       try {
-        await load(SOLA_HASH_PATH, file, solr_endpoint, solr_core);
+        await load(SOLA_HASH_PATH, file, SOLA_SOLR_URL, SOLA_SOLR_CORE);
       } catch (e) {
         await conn.query(mysql.format("UPDATE files SET status='HASHED' WHERE path=?", [file]));
         return;

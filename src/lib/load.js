@@ -4,7 +4,7 @@ const fetch = require("node-fetch");
 const xmldoc = require("xmldoc");
 const lzma = require("lzma-native");
 
-const load = (SOLA_HASH_PATH, relativePath, solr_endpoint, core) => new Promise(async (resolve, reject) => {
+const load = (SOLA_HASH_PATH, relativePath, SOLA_SOLR_URL, SOLA_SOLR_CORE) => new Promise(async (resolve, reject) => {
   const zipFilePath = `${path.join(SOLA_HASH_PATH, relativePath)}.xml.xz`;
   console.log(`Loading ${zipFilePath} into solr`);
 
@@ -62,15 +62,15 @@ const load = (SOLA_HASH_PATH, relativePath, solr_endpoint, core) => new Promise(
   // fs.writeFileSync("debug.xml", xml);
 
   try {
-    const coreInfo = await fetch(`${solr_endpoint}admin/cores?wt=json`).then((res) => res.json());
+    const coreInfo = await fetch(`${SOLA_SOLR_URL}admin/cores?wt=json`).then((res) => res.json());
 
     const selectedCoreName = Object.values(coreInfo.status)
-      .filter((e) => e.name.indexOf(`${core}_`) === 0)
+      .filter((e) => e.name.indexOf(`${SOLA_SOLR_CORE}_`) === 0)
       .sort((a, b) => a.index.numDocs - b.index.numDocs)[0].name; // choose least populated core
 
     console.log(`Uploading xml to solr core ${selectedCoreName}`);
     await fetch(
-      `${solr_endpoint}${selectedCoreName}/update?wt=json`,
+      `${SOLA_SOLR_URL}${selectedCoreName}/update?wt=json`,
       {
         method: "POST",
         headers: {"Content-Type": "text/xml"},
@@ -78,7 +78,7 @@ const load = (SOLA_HASH_PATH, relativePath, solr_endpoint, core) => new Promise(
       });
 
     await fetch(
-      `${solr_endpoint}${selectedCoreName}/update?wt=json`,
+      `${SOLA_SOLR_URL}${selectedCoreName}/update?wt=json`,
       {
         method: "POST",
         headers: {"Content-Type": "text/xml"},

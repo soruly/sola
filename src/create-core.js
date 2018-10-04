@@ -1,6 +1,5 @@
 require("dotenv").config();
 const path = require("path");
-const child_process = require("child_process");
 const fs = require("fs-extra");
 const fetch = require("node-fetch");
 
@@ -15,21 +14,13 @@ const createCore = async (coreName) => {
     await fetch(`${SOLA_SOLR_URL}admin/cores?action=UNLOAD&core=${coreName}&wt=json`);
   }
 
-  const instanceDir = path.join("/var/solr/data", coreName);
-  const dataDir = path.join(instanceDir, "data");
-  const config = path.join(instanceDir, "solrconfig.xml");
-  const schema = path.join(instanceDir, "schema.xml");
+  const instanceDir = path.join("/opt/mysolrhome", coreName);
   if (fs.existsSync(instanceDir)) {
     console.log("Removing previous core");
     fs.removeSync(instanceDir);
   }
   console.log(`Creating solr core ${coreName}`);
-  fs.ensureDirSync(instanceDir);
-  fs.copySync(path.join(__dirname, "../solr-conf", "solrconfig.xml"), config);
-  fs.copySync(path.join(__dirname, "../solr-conf", "schema.xml"), schema);
-  child_process.execSync(`chown -R solr:solr "${instanceDir}"`);
-  // `${SOLA_SOLR_URL}admin/cores?action=CREATE&name=${coreName}&instanceDir=/opt/solr_data/lire_0&configSet=liresolr_conf` for docker
-  fetch(`${SOLA_SOLR_URL}admin/cores?action=CREATE&name=${coreName}&instanceDir=${instanceDir}&dataDir=${dataDir}&config=${config}&schema=${schema}`)
+  fetch(`${SOLA_SOLR_URL}admin/cores?action=CREATE&name=${coreName}&instanceDir=${instanceDir}&configSet=liresolr_conf`)
     .then((response) => {
       console.log(response);
     })

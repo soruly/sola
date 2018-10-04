@@ -169,6 +169,7 @@ Example env config
 ```
 # Database setting
 SOLA_DB_HOST=192.168.1.100                     # check if the database can connect from workers
+SOLA_DB_PORT=3306                              #
 SOLA_DB_USER=whatanime                         #
 SOLA_DB_PWD=whatanime                          #
 SOLA_DB_NAME=whatanime                         # you need to create this db yourself

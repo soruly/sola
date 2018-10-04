@@ -6,13 +6,14 @@ const {hash} = require("./lib/hash");
 const {
   SOLA_SOLR_URL, SOLA_SOLR_CORE,
   SOLA_MQ_URL, SOLA_MQ_HASH, SOLA_MQ_LOAD,
-  SOLA_DB_HOST, SOLA_DB_USER, SOLA_DB_PWD, SOLA_DB_NAME
+  SOLA_DB_HOST, SOLA_DB_PORT, SOLA_DB_USER, SOLA_DB_PWD, SOLA_DB_NAME
 } = process.env;
 
 (async () => {
   console.log("Connecting to mariadb");
   const conn = await mysql.createConnection({
     host: SOLA_DB_HOST,
+    port: SOLA_DB_PORT,
     user: SOLA_DB_USER,
     password: SOLA_DB_PWD,
     database: SOLA_DB_NAME

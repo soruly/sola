@@ -6,7 +6,7 @@ const {URLSearchParams} = require("url");
 const {load} = require("./lib/load");
 const {
   SOLA_MQ_URL, SOLA_MQ_LOAD,
-  SOLA_DB_HOST, SOLA_DB_USER, SOLA_DB_PWD, SOLA_DB_NAME,
+  SOLA_DB_HOST, SOLA_DB_PORT, SOLA_DB_USER, SOLA_DB_PWD, SOLA_DB_NAME,
   SOLA_DISCORD_URL, SOLA_TELEGRAM_ID, SOLA_TELEGRAM_URL
 } = process.env;
 
@@ -14,6 +14,7 @@ const {
   console.log("Connecting to mariadb");
   const conn = await mysql.createConnection({
     host: SOLA_DB_HOST,
+    port: SOLA_DB_PORT,
     user: SOLA_DB_USER,
     password: SOLA_DB_PWD,
     database: SOLA_DB_NAME

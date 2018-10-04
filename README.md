@@ -114,29 +114,18 @@ cd sola
 npm install
 ```
 
-### 2. Start docker containers
+### 2. Configure settings in `.env` for each worker
 
-```
-docker-compose up -d
-```
-This would pull and start 3 containers: mariaDB, RabbitMQ and [a modified liresolr](https://hub.docker.com/r/soruly/liresolr/)
-
-Note: Remember to check if `docker-compose.yml` has port collision with the host
-
-### 3. Configure settings in `.env` for each worker
-
-Create MariaDB user and create a new database.  
-Copy `.env.example` to `.env`  
-Different workers may its own settings.  
+Copy `.env.example` to `.env`
 
 Example env config
 ```
 # Database setting
 SOLA_DB_HOST=192.168.1.100                     # check if the database can connect from workers
-SOLA_DB_PORT=3306                              #
+SOLA_DB_PORT=3306                              # port exposed to the host
 SOLA_DB_USER=whatanime                         #
 SOLA_DB_PWD=whatanime                          #
-SOLA_DB_NAME=whatanime                         # you need to create this db yourself
+SOLA_DB_NAME=whatanime                         # will create on docker-conpose
 
 # Solr setting
 SOLA_SOLR_URL=http://192.168.1.100:8983/solr/  # check if this endpoint can connect from all workers
@@ -144,8 +133,8 @@ SOLA_SOLR_CORE=lire                            # cores will be created as lire_0
 
 # resource path
 # you may use mounted network folders like smb or nfs
-SOLA_FILE_PATH=/mnt/nfs/data/anime/           # folder for storing raw mp4 files
-SOLA_HASH_PATH=/mnt/nfs/data/anime_hash/      # folder for storing compressed hash xz archive
+SOLA_FILE_PATH=/mnt/nfs/data/anime/            # folder for storing raw mp4 files
+SOLA_HASH_PATH=/mnt/nfs/data/anime_hash/       # folder for storing compressed hash xz archive
 
 # RabbitMQ setting
 SOLA_MQ_URL=amqp://sola:sola@192.168.1.100     # amqp://username:password@host
@@ -157,6 +146,15 @@ SOLA_DISCORD_URL=                              # https://discordapp.com/api/webh
 SOLA_TELEGRAM_ID=                              # @your_channel_name
 SOLA_TELEGRAM_URL=                             # https://api.telegram.org/botxxxx:xxxxxxxx/sendMessage
 ```
+
+### 3. Start docker containers
+
+```
+docker-compose up -d
+```
+This would pull and start 3 containers: mariaDB, RabbitMQ and [a modified liresolr](https://hub.docker.com/r/soruly/liresolr/)
+
+Note: Remember to check if `docker-compose.yml` has port collision with the host
 
 ### 4. Create solr core
 ```

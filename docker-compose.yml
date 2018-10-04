@@ -8,7 +8,7 @@ services:
   database:
     image: mariadb:latest
     ports:
-      - "3306:3306"
+      - "${SOLA_DB_PORT}:3306"
     restart: always
     volumes:
       - db_data:/var/lib/mysql

@@ -183,10 +183,12 @@ The worker process will stay and wait for new jobs. Start another terminal for a
 
 ### 8. Submit an image search
 ```
+docker cp /path/to/some/image.jpg sola_liresolr_1:/tmp/1.jpg
 node src/search.js /tmp/1.jpg
 ```
+This is temp solution, a better plan is to modify liresolr to support HTTP POST image.
 
-There is no JS API. It is suggested to send HTTP requests to solr directly. You may read `src/search.js` for reference.
+There is no JS API. It is suggested to send HTTP requests to solr directly (just like whatanime.ga does). You may read `src/search.js` for reference.
 
 ### Watch for new files
 Instead of calling `npm run check-new` periodically, it can watch for file system events.

@@ -1,21 +1,22 @@
+require("dotenv").config();
 const child_process = require("child_process");
 const mysql = require("promise-mysql");
 const amqp = require("amqplib");
 
 const {
-  anime_path, hash_path,
-  solr_endpoint, solr_core,
-  amqp_server, amqp_hash_queue, amqp_load_queue,
-  mariadb_host, mariadb_user, mariadb_pass, mariadb_db
-} = require("../config");
+  SOLA_FILE_PATH, SOLA_HASH_PATH,
+  SOLA_SOLR_URL, SOLA_SOLR_CORE,
+  SOLA_MQ_URL, SOLA_MQ_HASH, SOLA_MQ_LOAD,
+  SOLA_DB_HOST, SOLA_DB_USER, SOLA_DB_PWD, SOLA_DB_NAME
+} = process.env;
 
 (async () => {
   console.log("Connecting to mariadb");
   const pool = await mysql.createPool({
-    host: mariadb_host,
-    user: mariadb_user,
-    password: mariadb_pass,
-    database: mariadb_db,
+    host: SOLA_DB_HOST,
+    user: SOLA_DB_USER,
+    password: SOLA_DB_PWD,
+    database: SOLA_DB_NAME,
     connectionLimit: 10
   });
 
@@ -26,13 +27,13 @@ const {
             PRIMARY KEY (path)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
 
-  console.log(`Scanning ${anime_path}`);
+  console.log(`Scanning ${SOLA_FILE_PATH}`);
   const concurrency = 50;
   const args = process.argv[2] ? `-mmin -${process.argv[2]}` : "";
-  await child_process.execSync(`find -L ${anime_path} -type f -name "*.mp4" ${args}`).toString()
+  await child_process.execSync(`find -L ${SOLA_FILE_PATH} -type f -name "*.mp4" ${args}`).toString()
     .split("\n")
     .filter((each) => each)
-    .map((filePath) => filePath.replace(anime_path, ""))
+    .map((filePath) => filePath.replace(SOLA_FILE_PATH, ""))
     .reduce((list, term, index) => {
       const i = Math.floor(index / concurrency);
       const j = index % concurrency;
@@ -57,13 +58,13 @@ const {
   console.log("Sending out hash jobs for new files");
   await Promise.all(newFiles.map((each) => each.path)
     .map((filePath) => new Promise(async (resolve) => {
-      const connection = await amqp.connect(amqp_server);
+      const connection = await amqp.connect(SOLA_MQ_URL);
       const channel = await connection.createChannel();
-      await channel.assertQueue(amqp_hash_queue, {durable: false});
-      console.log(`Submiting ${amqp_hash_queue} job for ${filePath}`);
-      await channel.sendToQueue(amqp_hash_queue, Buffer.from(JSON.stringify({
-        anime_path,
-        hash_path,
+      await channel.assertQueue(SOLA_MQ_HASH, {durable: false});
+      console.log(`Submiting ${SOLA_MQ_HASH} job for ${filePath}`);
+      await channel.sendToQueue(SOLA_MQ_HASH, Buffer.from(JSON.stringify({
+        SOLA_FILE_PATH,
+        SOLA_HASH_PATH,
         file: filePath
       })), {persistent: false});
       await new Promise((res) => {
@@ -79,16 +80,16 @@ const {
   console.log("Sending out load jobs for new hashes");
   await Promise.all(newHash.map((each) => each.path)
     .map((filePath) => new Promise(async (resolve) => {
-      const connection = await amqp.connect(amqp_server);
+      const connection = await amqp.connect(SOLA_MQ_URL);
       const channel = await connection.createChannel();
-      await channel.assertQueue(amqp_load_queue, {durable: false});
-      console.log(`Submiting ${amqp_load_queue} job for ${filePath}`);
-      await channel.sendToQueue(amqp_load_queue, Buffer.from(JSON.stringify({
-        anime_path,
-        hash_path,
+      await channel.assertQueue(SOLA_MQ_LOAD, {durable: false});
+      console.log(`Submiting ${SOLA_MQ_LOAD} job for ${filePath}`);
+      await channel.sendToQueue(SOLA_MQ_LOAD, Buffer.from(JSON.stringify({
+        SOLA_FILE_PATH,
+        SOLA_HASH_PATH,
         file: filePath,
-        solr_endpoint,
-        solr_core
+        SOLA_SOLR_URL,
+        SOLA_SOLR_CORE
       })), {persistent: false});
       await new Promise((res) => {
         setTimeout(res, 50);

@@ -25,6 +25,7 @@
   "dependencies": {
     "amqplib": "^0.5.2",
     "chokidar": "^2.0.4",
+    "dotenv": "^6.0.0",
     "fs-extra": "^7.0.0",
     "glob": "^7.1.2",
     "lzma-native": "^4.0.1",

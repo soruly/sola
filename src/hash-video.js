@@ -25,14 +25,14 @@ const {
   await channel.prefetch(1);
   console.log(`Waiting for messages in ${SOLA_MQ_HASH}. To exit press CTRL+C`);
   channel.consume(SOLA_MQ_HASH, async (msg) => {
-    const {anime_path, hash_path, file} = JSON.parse(msg.content.toString());
+    const {SOLA_FILE_PATH, SOLA_HASH_PATH, file} = JSON.parse(msg.content.toString());
     console.log(`Received ${SOLA_MQ_HASH} job for ${file}`);
     await conn.beginTransaction();
     const result = await conn.query(mysql.format("SELECT status FROM files WHERE path=?", [file]));
     if (result[0].status === "NEW") {
       await conn.query(mysql.format("UPDATE files SET status='HASHING' WHERE path=?", [file]));
       conn.commit();
-      await hash(anime_path, hash_path, file);
+      await hash(SOLA_FILE_PATH, SOLA_HASH_PATH, file);
       await conn.query(mysql.format("UPDATE files SET status='HASHED' WHERE path=?", [file]));
     } else {
       console.log(`File status is [${result[0].status}] , skip`);
@@ -42,8 +42,8 @@ const {
     await channel.assertQueue(SOLA_MQ_LOAD, {durable: false});
     console.log(`Submiting ${SOLA_MQ_LOAD} job for ${file}`);
     await channel.sendToQueue(SOLA_MQ_LOAD, Buffer.from(JSON.stringify({
-      anime_path,
-      hash_path,
+      SOLA_FILE_PATH,
+      SOLA_HASH_PATH,
       file,
       SOLA_SOLR_URL,
       SOLA_SOLR_CORE

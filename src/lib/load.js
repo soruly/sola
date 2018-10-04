@@ -4,8 +4,8 @@ const fetch = require("node-fetch");
 const xmldoc = require("xmldoc");
 const lzma = require("lzma-native");
 
-const load = (hash_path, relativePath, solr_endpoint, core) => new Promise(async (resolve, reject) => {
-  const zipFilePath = `${path.join(hash_path, relativePath)}.xml.xz`;
+const load = (SOLA_HASH_PATH, relativePath, solr_endpoint, core) => new Promise(async (resolve, reject) => {
+  const zipFilePath = `${path.join(SOLA_HASH_PATH, relativePath)}.xml.xz`;
   console.log(`Loading ${zipFilePath} into solr`);
 
   console.log("Unzipping files");

@@ -159,30 +159,38 @@ sudo chown 8983:8983 ~/solr_data
 docker run -d -p 8983:8983 --name liresolr --rm -v ~/solr_data:/opt/solr_data soruly/liresolr
 ```
 
-### 3. Configure your settings in `config.json`
+### 3. Configure settings in `.env` for each worker
 
 Create MariaDB user and create a new database.  
-All the options in config.json is required.  
-Leave `telegram_channel_url` null to disable pushing notifications to telegram.
+Copy `.env.example` to `.env`  
+Different workers may its own settings.  
 
-Example config
+Example env config
 ```
-{
-  "mariadb_host": "192.168.1.100",                    # make sure the database is accessible from all workers
-  "mariadb_user": "whatanime",
-  "mariadb_pass": "whatanime",
-  "mariadb_db": "whatanime",                          # you need to create this db yourself
-  "solr_endpoint": "http://192.168.1.100:8983/solr/", # make sure this endpoint is accessible from all workers
-  "solr_core": "lire",                                # cores will be created as lire_0, lire_1, lire_2
-  "anime_path": "/mnt/nfs/data/anilist/",             # make sure the path is accessible from all workers
-  "hash_path": "/mnt/nfs/data/anilist_hash/",         # make sure the path is accessible from all workers
-  "amqp_server": "amqp://sola:sola@192.168.1.100",    # amqp://username:password@host
-  "amqp_hash_queue": "hash_video",                    # queue name
-  "amqp_load_queue": "load_hash",                     # created automatically, usually no need to change this
-  "discord_webhook_url": null,                        # https://discordapp.com/api/webhooks/xxxxx/xxxxxxxxxxx
-  "telegram_channel_id": null,                        # @your_channel_name
-  "telegram_channel_url": null                        # https://api.telegram.org/botxxxx:xxxxxxxx/sendMessage
-}
+# Database setting
+SOLA_DB_HOST=192.168.1.100                     # check if the database can connect from workers
+SOLA_DB_USER=whatanime                         #
+SOLA_DB_PWD=whatanime                          #
+SOLA_DB_NAME=whatanime                         # you need to create this db yourself
+
+# Solr setting
+SOLA_SOLR_URL=http://192.168.1.100:8983/solr/  # check if this endpoint can connect from all workers
+SOLA_SOLR_CORE=lire                            # cores will be created as lire_0, lire_1, lire_2
+
+# resource path
+# you may use mounted network folders like smb or nfs
+SOLA_FILE_PATH=/mnt/nfs/data/anime/           # folder for storing raw mp4 files
+SOLA_HASH_PATH=/mnt/nfs/data/anime_hash/      # folder for storing compressed hash xz archive
+
+# RabbitMQ setting
+SOLA_MQ_URL=amqp://sola:sola@192.168.1.100     # amqp://username:password@host
+SOLA_MQ_HASH=hash_video                        # RabbitMQ queue ID, will create automatically
+SOLA_MQ_LOAD=load_hash                         # RabbitMQ queue ID, will create automatically
+
+# Notification setting (leave empty to disable)
+SOLA_DISCORD_URL=                              # https://discordapp.com/api/webhooks/xxxxx/xxxxxxxxxxx
+SOLA_TELEGRAM_ID=                              # @your_channel_name
+SOLA_TELEGRAM_URL=                             # https://api.telegram.org/botxxxx:xxxxxxxx/sendMessage
 ```
 
 ### 4. Create solr core

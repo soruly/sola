@@ -10,7 +10,7 @@ const deleteCore = async (coreName) => {
   await fetch(`${SOLA_SOLR_URL}admin/cores?action=UNLOAD&core=${coreName}&wt=json`);
 
 
-  const instanceDir = path.join("/var/solr/data", coreName);
+  const instanceDir = path.join("/opt/mysolrhome", coreName);
   if (fs.existsSync(instanceDir)) {
     console.log("Deleting core files");
     fs.removeSync(instanceDir);

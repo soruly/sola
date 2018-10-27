@@ -10,7 +10,7 @@ Scene search On Liresolr for Animation.
 
 Making use of a modified version of [LIRE Solr](https://github.com/dermotte/liresolr) to look up video scenes with an image. (accurate to 0.01s)
 
-This is exactly the video indexing scripts used by Anime Scene Search service - [whatanime.ga](https://github.com/soruly/whatanime.ga).  
+This is exactly the video indexing scripts used by Anime Scene Search service - [trace.moe](https://github.com/soruly/trace.moe).  
 sola is not limited to use with anime. As long as the video is in mp4 format, this can be used for any video.
 
 ## Demo
@@ -186,7 +186,7 @@ node src/search.js /tmp/1.jpg
 ```
 This is temp solution, a better plan is to modify liresolr to support HTTP POST image.
 
-There is no JS API. It is suggested to send HTTP requests to solr directly (just like whatanime.ga does). You may read `src/search.js` for reference.
+There is no JS API. It is suggested to send HTTP requests to solr directly (just like trace.moe does). You may read `src/search.js` for reference.
 
 ### Watch for new files
 Instead of calling `npm run check-new` periodically, it can watch for file system events.
@@ -219,10 +219,10 @@ To cleanup from any dirty worker state, just stop all workers and `rm -rf /tmp/s
 Compressed hash (*.xml.xz) files takes ~375KB per 24-minute anime.  
 This assume the thumbnails are extracted at 12 fps (default).
 Storage for compressed hash does not have to be fast. Magnetic disks are fine.  
-(Side note: an archive of all *.xml.xz files from whatanime.ga can be downloaded [here](https://nyaa.si/view/1023979))
+(Side note: an archive of all *.xml.xz files from trace.moe can be downloaded [here](https://nyaa.si/view/1023979))
 
 Each doc (hash) in solr takes ~200 bytes.  
-(ref: the size of solr core on whatanime.ga is 135GB for 722 million frames)  
+(ref: the size of solr core on trace.moe is 150GB for 800 million frames)  
 Storage device of solr core must be fast. Minumum: SATA SSD, Recommended: PCI-E/nvme SSD  
 A 24-minute video has ~34560 frames. Extracting at 12 fps yields ~17280 frames. This is the number of frames in compressed hash (*.xml.xz). Before being loaded into solr, the load-hash worker use a running window to deduplicate frames of exact hash. Typically this deduplication ratio is 40%, so only 10368 frame hashes are actually loaded into solr. Which is ~2025KB in solr for each 24-minute video.
 

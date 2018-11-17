@@ -122,13 +122,14 @@ Example env config
 ```
 # Database setting
 SOLA_DB_HOST=192.168.1.100                     # check if the database can connect from workers
-SOLA_DB_PORT=3306                              # port exposed to the host
+SOLA_DB_PORT=3306                              # host port
 SOLA_DB_USER=whatanime                         #
 SOLA_DB_PWD=whatanime                          #
 SOLA_DB_NAME=whatanime                         # will create on docker-conpose
 
 # Solr setting
 SOLA_SOLR_HOME=/mnt/data/sola_solr_home/       # this must be chmod -R 777 for solr to create cores
+SOLA_SOLR_PORT=8983                            # host port
 SOLA_SOLR_URL=http://192.168.1.100:8983/solr/  # check if this endpoint can connect from all workers
 SOLA_SOLR_CORE=lire                            # cores will be created as lire_0, lire_1, lire_2
 
@@ -138,6 +139,8 @@ SOLA_FILE_PATH=/mnt/nfs/data/anime/            # folder for storing raw mp4 file
 SOLA_HASH_PATH=/mnt/nfs/data/anime_hash/       # folder for storing compressed hash xz archive
 
 # RabbitMQ setting
+SOLA_MQ_PORT=5672                              # host port
+SOLA_MQ_PORT_MGT=15672                         # host port for WebUI
 SOLA_MQ_URL=amqp://sola:sola@192.168.1.100     # amqp://username:password@host
 SOLA_MQ_HASH=hash_video                        # RabbitMQ queue ID, will create automatically
 SOLA_MQ_LOAD=load_hash                         # RabbitMQ queue ID, will create automatically

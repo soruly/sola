@@ -26,8 +26,8 @@ services:
       - ./docker/rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
       - ./docker/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "${SOLA_MQ_PORT}:5672"
+      - "${SOLA_MQ_PORT_MGT}:15672"
     networks:
       sola_net:
 
@@ -44,7 +44,7 @@ services:
       - SOLR_HOME=/opt/mysolrhome
       - SOLR_HEAP=1g
     ports:
-      - "8983:8983"
+      - "${SOLA_SOLR_PORT}:8983"
     networks:
       sola_net:
 

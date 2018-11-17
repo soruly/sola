@@ -2,7 +2,6 @@ version: "3"
 
 volumes:
   db_data:
-  solr_data:
 
 services:
   database:
@@ -33,10 +32,17 @@ services:
       sola_net:
 
   liresolr:
-    image: soruly/liresolr
+    image: solr:7-alpine
     restart: unless-stopped
     volumes:
-      - solr_data:/opt/mysolrhome
+      - ./docker/lire.jar:/opt/solr/server/solr-webapp/webapp/WEB-INF/lib/lire.jar:ro
+      - ./docker/liresolr.jar:/opt/solr/server/solr-webapp/webapp/WEB-INF/lib/liresolr.jar:ro
+      - ./docker/liresolr_conf:/opt/mysolrhome/conf:ro
+      - ./docker/solr.xml:/opt/mysolrhome/solr.xml:ro
+      - ${SOLA_SOLR_HOME}:/opt/mysolrhome
+    environment:
+      - SOLR_HOME=/opt/mysolrhome
+      - SOLR_HEAP=1g
     ports:
       - "8983:8983"
     networks:

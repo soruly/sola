@@ -20,7 +20,7 @@ const createCore = async (coreName) => {
     fs.removeSync(instanceDir);
   }
   console.log(`Creating solr core ${coreName}`);
-  fetch(`${SOLA_SOLR_URL}admin/cores?action=CREATE&name=${coreName}&instanceDir=${instanceDir}&configSet=liresolr_conf`)
+  fetch(`${SOLA_SOLR_URL}admin/cores?action=CREATE&name=${coreName}&instanceDir=${instanceDir}&configSet=/opt/mysolrhome`)
     .then((response) => {
       console.log(response);
     })

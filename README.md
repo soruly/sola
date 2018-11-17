@@ -128,6 +128,7 @@ SOLA_DB_PWD=whatanime                          #
 SOLA_DB_NAME=whatanime                         # will create on docker-conpose
 
 # Solr setting
+SOLA_SOLR_HOME=/mnt/data/sola_solr_home/       # this must be chmod -R 777 for solr to create cores
 SOLA_SOLR_URL=http://192.168.1.100:8983/solr/  # check if this endpoint can connect from all workers
 SOLA_SOLR_CORE=lire                            # cores will be created as lire_0, lire_1, lire_2
 
@@ -152,11 +153,12 @@ SOLA_TELEGRAM_URL=                             # https://api.telegram.org/botxxx
 ```
 docker-compose up -d
 ```
-This would pull and start 3 containers: mariaDB, RabbitMQ and [a modified liresolr](https://hub.docker.com/r/soruly/liresolr/)
+This would pull and start 3 containers: mariaDB, RabbitMQ and Solr
 
 Note: Remember to check if `docker-compose.yml` has port collision with the host
 
 ### 4. Create solr core
+SOLA_SOLR_HOME must be chmod -R 777 first
 ```
 npm run create-core
 ```

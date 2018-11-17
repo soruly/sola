@@ -54,5 +54,6 @@ const {
       setTimeout(res, 50);
     });
     await connection.close();
+    console.log("Completed");
   });
 })();

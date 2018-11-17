@@ -52,5 +52,6 @@ const {
     await new Promise((resolve) => {
       setTimeout(resolve, 200); // let the bullets fly awhile
     });
+    console.log("Completed");
   }, {noAck: false});
 })();

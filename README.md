@@ -125,13 +125,14 @@ SOLA_DB_HOST=192.168.1.100                     # check if the database can conne
 SOLA_DB_PORT=3306                              # host port
 SOLA_DB_USER=whatanime                         #
 SOLA_DB_PWD=whatanime                          #
-SOLA_DB_NAME=whatanime                         # will create on docker-conpose
+SOLA_DB_NAME=whatanime                         # will create on docker-compose
 
 # Solr setting
 SOLA_SOLR_HOME=/mnt/data/sola_solr_home/       # this must be chmod -R 777 for solr to create cores
 SOLA_SOLR_PORT=8983                            # host port
 SOLA_SOLR_URL=http://192.168.1.100:8983/solr/  # check if this endpoint can connect from all workers
 SOLA_SOLR_CORE=lire                            # cores will be created as lire_0, lire_1, lire_2
+SOLA_SOLR_HEAP=1g                              # Memory allocated for solr
 
 # resource path
 # you may use mounted network folders like smb or nfs

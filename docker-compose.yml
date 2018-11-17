@@ -42,7 +42,7 @@ services:
       - ${SOLA_SOLR_HOME}:/opt/mysolrhome
     environment:
       - SOLR_HOME=/opt/mysolrhome
-      - SOLR_HEAP=1g
+      - SOLR_HEAP=${SOLA_SOLR_HEAP}
     ports:
       - "${SOLA_SOLR_PORT}:8983"
     networks:

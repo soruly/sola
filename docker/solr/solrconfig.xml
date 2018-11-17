@@ -1344,15 +1344,14 @@
       EditorialMarkerFactory will do exactly that:
      <transformer name="qecBooster" class="org.apache.solr.response.transform.EditorialMarkerFactory" />
     -->
-    <schemaFactory class="ClassicIndexSchemaFactory"/>
-<requestHandler name="/lireq" class="net.semanticmetadata.lire.solr.LireRequestHandler">
-    <lst name="defaults">
+    
+    <requestHandler name="/lireq" class="net.semanticmetadata.lire.solr.LireRequestHandler">
+      <lst name="defaults">
         <str name="echoParams">explicit</str>
         <str name="wt">json</str>
         <str name="indent">true</str>
-    </lst>
-</requestHandler>
- 
-<valueSourceParser name="lirefunc" 
-    class="net.semanticmetadata.lire.solr.LireValueSourceParser" />
+      </lst>
+    </requestHandler>
+
+    <valueSourceParser name="lirefunc" class="net.semanticmetadata.lire.solr.LireValueSourceParser" />
 </config>

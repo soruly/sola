@@ -37,8 +37,9 @@ services:
     volumes:
       - ./docker/lire.jar:/opt/solr/server/solr-webapp/webapp/WEB-INF/lib/lire.jar:ro
       - ./docker/liresolr.jar:/opt/solr/server/solr-webapp/webapp/WEB-INF/lib/liresolr.jar:ro
-      - ./docker/liresolr_conf:/opt/mysolrhome/conf:ro
-      - ./docker/solr.xml:/opt/mysolrhome/solr.xml:ro
+      - ./docker/solr/managed-schema:/opt/mysolrhome/conf/managed-schema
+      - ./docker/solr/solrconfig.xml:/opt/mysolrhome/conf/solrconfig.xml:ro
+      - ./docker/solr/solr.xml:/opt/mysolrhome/solr.xml:ro
       - ${SOLA_SOLR_HOME}:/opt/mysolrhome
     environment:
       - SOLR_HOME=/opt/mysolrhome

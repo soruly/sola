@@ -7,9 +7,9 @@ volumes:
 services:
   database:
     image: mariadb:latest
+    restart: unless-stopped
     ports:
       - "${SOLA_DB_PORT}:3306"
-    restart: always
     volumes:
       - db_data:/var/lib/mysql
     environment:
@@ -22,6 +22,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:management
+    restart: unless-stopped
     volumes:
       - ./docker/rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
       - ./docker/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
@@ -33,6 +34,7 @@ services:
 
   liresolr:
     image: soruly/liresolr
+    restart: unless-stopped
     volumes:
       - solr_data:/opt/mysolrhome
     ports:

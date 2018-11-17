@@ -10,16 +10,7 @@ const {
   SOLA_DB_HOST, SOLA_DB_PORT, SOLA_DB_USER, SOLA_DB_PWD, SOLA_DB_NAME
 } = process.env;
 
-(async () => {
-  console.log("Connecting to mariadb");
-  const conn = await mysql.createConnection({
-    host: SOLA_DB_HOST,
-    port: SOLA_DB_PORT,
-    user: SOLA_DB_USER,
-    password: SOLA_DB_PWD,
-    database: SOLA_DB_NAME
-  });
-
+(() => {
   console.log("Watching folders for new files");
   chokidar.watch([SOLA_FILE_PATH], {
     persistent: true,
@@ -37,8 +28,17 @@ const {
       return;
     }
     const relativePath = filePath.replace(SOLA_FILE_PATH, "");
+    console.log("Connecting to mariadb");
+    const conn = await mysql.createConnection({
+      host: SOLA_DB_HOST,
+      port: SOLA_DB_PORT,
+      user: SOLA_DB_USER,
+      password: SOLA_DB_PWD,
+      database: SOLA_DB_NAME
+    });
     console.log("Adding new file to database");
     await conn.query(mysql.format("INSERT IGNORE INTO files (path, status) VALUES (?, 'NEW');", [relativePath]));
+    await conn.end();
 
     console.log("Sending out hash jobs for new file");
     const connection = await amqp.connect(SOLA_MQ_URL);

@@ -10,15 +10,6 @@ const {
 } = process.env;
 
 (async () => {
-  console.log("Connecting to mariadb");
-  const conn = await mysql.createConnection({
-    host: SOLA_DB_HOST,
-    port: SOLA_DB_PORT,
-    user: SOLA_DB_USER,
-    password: SOLA_DB_PWD,
-    database: SOLA_DB_NAME
-  });
-
   console.log("Connecting to amqp server");
   const connection = await amqp.connect(SOLA_MQ_URL);
   const channel = await connection.createChannel();
@@ -28,6 +19,14 @@ const {
   channel.consume(SOLA_MQ_HASH, async (msg) => {
     const {SOLA_FILE_PATH, SOLA_HASH_PATH, file} = JSON.parse(msg.content.toString());
     console.log(`Received ${SOLA_MQ_HASH} job for ${file}`);
+    console.log("Connecting to mariadb");
+    const conn = await mysql.createConnection({
+      host: SOLA_DB_HOST,
+      port: SOLA_DB_PORT,
+      user: SOLA_DB_USER,
+      password: SOLA_DB_PWD,
+      database: SOLA_DB_NAME
+    });
     await conn.beginTransaction();
     const result = await conn.query(mysql.format("SELECT status FROM files WHERE path=?", [file]));
     if (result[0].status === "NEW") {
@@ -35,6 +34,7 @@ const {
       conn.commit();
       await hash(SOLA_FILE_PATH, SOLA_HASH_PATH, file);
       await conn.query(mysql.format("UPDATE files SET status='HASHED' WHERE path=?", [file]));
+      await conn.end();
     } else {
       console.log(`File status is [${result[0].status}] , skip`);
     }

@@ -187,11 +187,8 @@ The worker process will stay and wait for new jobs. Start another terminal for a
 
 ### 8. Submit an image search
 ```
-docker cp /path/to/some/image.jpg sola_liresolr_1:/tmp/1.jpg
-node src/search.js /tmp/1.jpg
+node src/search.js /path/to/your/image.jpg
 ```
-This is temp solution, a better plan is to modify liresolr to support HTTP POST image.
-
 There is no JS API. It is suggested to send HTTP requests to solr directly (just like trace.moe does). You may read `src/search.js` for reference.
 
 ### Watch for new files

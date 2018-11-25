@@ -1,15 +1,16 @@
+require("dotenv").config();
 const path = require("path");
 const fetch = require("node-fetch");
 const fs = require("fs-extra");
 
-const {solr_endpoint, solr_core} = require("../config");
+const {SOLA_SOLR_URL, SOLA_SOLR_CORE} = process.env;
 
 const deleteCore = async (coreName) => {
   console.log(`Unloading existing core ${coreName}`);
-  await fetch(`${solr_endpoint}admin/cores?action=UNLOAD&core=${coreName}&wt=json`);
+  await fetch(`${SOLA_SOLR_URL}admin/cores?action=UNLOAD&core=${coreName}&wt=json`);
 
 
-  const instanceDir = path.join("/var/solr/data", coreName);
+  const instanceDir = path.join("/opt/mysolrhome", coreName);
   if (fs.existsSync(instanceDir)) {
     console.log("Deleting core files");
     fs.removeSync(instanceDir);
@@ -18,9 +19,9 @@ const deleteCore = async (coreName) => {
 };
 
 (async () => {
-  const result = await fetch(`${solr_endpoint}admin/cores?wt=json`).then((res) => res.json());
+  const result = await fetch(`${SOLA_SOLR_URL}admin/cores?wt=json`).then((res) => res.json());
 
   Object.keys(result.status) // get the names of all loaded cores
-    .filter((coreName) => coreName.indexOf(`${solr_core}_`) === 0) // select all cores of the name
+    .filter((coreName) => coreName.indexOf(`${SOLA_SOLR_CORE}_`) === 0) // select all cores of the name
     .reduce((chain, coreName) => chain.then(() => deleteCore(coreName)), Promise.resolve([]));
 })();

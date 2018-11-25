@@ -5,14 +5,14 @@ const child_process = require("child_process");
 const lzma = require("lzma-native");
 const uuidv1 = require("uuid/v1");
 
-const hash = async (anime_path, hash_path, relativePath) => {
-  const mp4FilePath = path.join(anime_path, relativePath);
+const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
+  const mp4FilePath = path.join(SOLA_FILE_PATH, relativePath);
   console.log(`Hashing ${mp4FilePath}`);
   if (!fs.existsSync(mp4FilePath)) {
     console.log("Error: file not exist");
     return;
   }
-  const xmlZipFilePath = `${path.join(hash_path, relativePath)}.xml.xz`;
+  const xmlZipFilePath = `${path.join(SOLA_HASH_PATH, relativePath)}.xml.xz`;
 
   const tempPath = path.join(os.tmpdir(), "sola", uuidv1());
   console.log(`Creating temp directory ${tempPath}`);
@@ -58,7 +58,7 @@ const hash = async (anime_path, hash_path, relativePath) => {
     "java",
     [
       "-cp",
-      "/opt/solr/server/solr-webapp/webapp/WEB-INF/lib/*",
+      "docker/*",
       "net.semanticmetadata.lire.solr.indexing.ParallelSolrIndexer",
       "-i",
       thumbnailListPath,

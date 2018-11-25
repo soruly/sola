@@ -18,7 +18,7 @@
        that you fully re-index after changing this setting as it can
        affect both how text is indexed and queried.
   -->
-  <luceneMatchVersion>7.2.1</luceneMatchVersion>
+  <luceneMatchVersion>7.5.0</luceneMatchVersion>
 
   <!-- <lib/> directives can be used to instruct Solr to load any Jars
        identified and use them to resolve any "plugins" specified in
@@ -1344,15 +1344,14 @@
       EditorialMarkerFactory will do exactly that:
      <transformer name="qecBooster" class="org.apache.solr.response.transform.EditorialMarkerFactory" />
     -->
-
-<requestHandler name="/lireq" class="net.semanticmetadata.lire.solr.LireRequestHandler">
-    <lst name="defaults">
+    
+    <requestHandler name="/lireq" class="net.semanticmetadata.lire.solr.LireRequestHandler">
+      <lst name="defaults">
         <str name="echoParams">explicit</str>
         <str name="wt">json</str>
         <str name="indent">true</str>
-    </lst>
-</requestHandler>
- 
-<valueSourceParser name="lirefunc" 
-    class="net.semanticmetadata.lire.solr.LireValueSourceParser" />
+      </lst>
+    </requestHandler>
+
+    <valueSourceParser name="lirefunc" class="net.semanticmetadata.lire.solr.LireValueSourceParser" />
 </config>

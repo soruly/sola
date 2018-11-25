@@ -1,0 +1,53 @@
+version: "3"
+
+volumes:
+  db_data:
+
+services:
+  database:
+    image: mariadb:latest
+    restart: unless-stopped
+    ports:
+      - "${SOLA_DB_PORT}:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    environment:
+      - MYSQL_USER=${SOLA_DB_USER}
+      - MYSQL_PASSWORD=${SOLA_DB_PWD}
+      - MYSQL_DATABASE=${SOLA_DB_NAME}
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+    networks:
+      sola_net:
+
+  rabbitmq:
+    image: rabbitmq:management
+    restart: unless-stopped
+    volumes:
+      - ./docker/rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
+      - ./docker/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+    ports:
+      - "${SOLA_MQ_PORT}:5672"
+      - "${SOLA_MQ_PORT_MGT}:15672"
+    networks:
+      sola_net:
+
+  liresolr:
+    image: solr:7-alpine
+    restart: unless-stopped
+    volumes:
+      - ./docker/lire.jar:/opt/solr/server/solr-webapp/webapp/WEB-INF/lib/lire.jar:ro
+      - ./docker/liresolr.jar:/opt/solr/server/solr-webapp/webapp/WEB-INF/lib/liresolr.jar:ro
+      - ./docker/solr/managed-schema:/opt/mysolrhome/conf/managed-schema
+      - ./docker/solr/solrconfig.xml:/opt/mysolrhome/conf/solrconfig.xml:ro
+      - ./docker/solr/solr.xml:/opt/mysolrhome/solr.xml:ro
+      - ${SOLA_SOLR_HOME}:/opt/mysolrhome
+    environment:
+      - SOLR_HOME=/opt/mysolrhome
+      - SOLR_HEAP=${SOLA_SOLR_HEAP}
+    ports:
+      - "${SOLA_SOLR_PORT}:8983"
+    networks:
+      sola_net:
+
+networks:
+  sola_net:

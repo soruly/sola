@@ -10,7 +10,7 @@ Scene search On Liresolr for Animation.
 
 Making use of a modified version of [LIRE Solr](https://github.com/dermotte/liresolr) to look up video scenes with an image. (accurate to 0.01s)
 
-This is exactly the video indexing scripts used by Anime Scene Search service - [whatanime.ga](https://github.com/soruly/whatanime.ga).  
+This is exactly the video indexing scripts used by Anime Scene Search service - [trace.moe](https://github.com/soruly/trace.moe).  
 sola is not limited to use with anime. As long as the video is in mp4 format, this can be used for any video.
 
 ## Demo
@@ -75,55 +75,35 @@ For details, please refer to [Optimization and Tuning](#optimization-and-tuning)
 
 ## Prerequisites
 
-- Linux (only tested on Fedora 27)
+- Linux (tested on Fedora 28)
 - Node.js 8+
 - Java 8
 - ffmpeg
-- solr 7.x
-- RabbitMQ 3.6+
-- MariaDB 10.2+
+- Docker
 
 ## Installing Prerequisites
 
-Fedora 27 is used as example
+Fedora 28 is used as example
 ```
 # install rpmfusion (which provides ffmpeg)
 sudo dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
 sudo dnf install https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-# install Node.js, Java, RabbitMQ, MariaDB and ffmpeg
-sudo dnf install nodejs java-1.8.0-openjdk-devel rabbitmq-server mariadb-server ffmpeg
-
-sudo systemctl enable rabbitmq-server
-sudo systemctl start rabbitmq-server
-
-sudo systemctl enable mariadb
-sudo systemctl start mariadb
-
-# install solr
-wget http://archive.apache.org/dist/lucene/solr/7.2.1/solr-7.2.1.zip
-unzip solr-7.2.1.zip
-./solr-7.2.1/bin/install_solr_service.sh solr-7.2.1.zip -f -n
-sudo systemctl enable solr
-sudo systemctl start solr
+# install Node.js, Java and ffmpeg
+sudo dnf install nodejs java-1.8.0-openjdk-devel ffmpeg
 ```
 
 Verify the installed versions:
 ```
 node -v
-# v8.11.0
+# v8.12.0
 java -version
-# openjdk version "1.8.0_171"
-# OpenJDK Runtime Environment (build 1.8.0_171-b10)
-# OpenJDK 64-Bit Server VM (build 25.171-b10, mixed mode)
-/opt/solr/bin/solr -version
-# 7.2.1
-sudo rabbitmqctl status | grep '"RabbitMQ"'
-# {rabbit,"RabbitMQ","3.6.15"},
+# openjdk version "1.8.0_181"
+# OpenJDK Runtime Environment (build 1.8.0_181-b15)
+# OpenJDK 64-Bit Server VM (build 25.181-b15, mixed mode)
 ffmpeg -version
-# ffmpeg version 3.3.6 Copyright (c) 2000-2017 the FFmpeg developers
-# built with gcc 7 (GCC)
-mysql -V
-# mysql  Ver 15.1 Distrib 10.2.14-MariaDB, for Linux (x86_64) using readline 5.1
+# ffmpeg version 4.0.2 Copyright (c) 2000-2018 the FFmpeg developers
+docker -v
+# Docker version 18.06.1-ce, build e68fc7a
 ```
 
 ## Getting Started
@@ -131,93 +111,88 @@ mysql -V
 ```
 git clone git@github.com:soruly/sola.git
 cd sola
-npm install --only=production
+npm install
 ```
 
-### 2. Install the liresolr plugin
+### 2. Configure settings in `.env` for each worker
 
-### 2a. Using pre-built jar files (for linux only)  
-- Download jar files from [https://github.com/soruly/liresolr/releases](https://github.com/soruly/liresolr/releases)
-- Put them in `/opt/solr/server/solr-webapp/webapp/WEB-INF/lib/`  
-- Note: remember to set permission (chown) appropriately
-- Restart solr
+Copy `.env.example` to `.env`
 
-### 2b. Build from source (if the jar files does not work)
+Example env config
 ```
-git clone git@github.com:soruly/liresolr.git
-cd liresolr
-./gredlew distForSolr
-sudo cp dist/lire*.jar /opt/solr/server/solr-webapp/webapp/WEB-INF/lib/
-sudo systemctl restart solr
+# Database setting
+SOLA_DB_HOST=192.168.1.100                     # check if the database can connect from workers
+SOLA_DB_PORT=3306                              # host port
+SOLA_DB_USER=whatanime                         #
+SOLA_DB_PWD=whatanime                          #
+SOLA_DB_NAME=whatanime                         # will create on docker-compose
+
+# Solr setting
+SOLA_SOLR_HOME=/mnt/data/sola_solr_home/       # this must be chmod -R 777 for solr to create cores
+SOLA_SOLR_PORT=8983                            # host port
+SOLA_SOLR_URL=http://192.168.1.100:8983/solr/  # check if this endpoint can connect from all workers
+SOLA_SOLR_CORE=lire                            # cores will be created as lire_0, lire_1, lire_2
+SOLA_SOLR_HEAP=1g                              # Memory allocated for solr
+
+# resource path
+# you may use mounted network folders like smb or nfs
+SOLA_FILE_PATH=/mnt/nfs/data/anime/            # folder for storing raw mp4 files
+SOLA_HASH_PATH=/mnt/nfs/data/anime_hash/       # folder for storing compressed hash xz archive
+
+# RabbitMQ setting
+SOLA_MQ_PORT=5672                              # host port
+SOLA_MQ_PORT_MGT=15672                         # host port for WebUI
+SOLA_MQ_URL=amqp://sola:sola@192.168.1.100     # amqp://username:password@host
+SOLA_MQ_HASH=hash_video                        # RabbitMQ queue ID, will create automatically
+SOLA_MQ_LOAD=load_hash                         # RabbitMQ queue ID, will create automatically
+
+# Notification setting (leave empty to disable)
+SOLA_DISCORD_URL=                              # https://discordapp.com/api/webhooks/xxxxx/xxxxxxxxxxx
+SOLA_TELEGRAM_ID=                              # @your_channel_name
+SOLA_TELEGRAM_URL=                             # https://api.telegram.org/botxxxx:xxxxxxxx/sendMessage
 ```
 
-### 2c. Using docker:
-The docker image for the modified liresolr: [https://hub.docker.com/r/soruly/liresolr/](https://hub.docker.com/r/soruly/liresolr/)
-```
-docker run -d -p 8983:8983 --name liresolr --rm -v /var/solr:/var/solr soruly/liresolr
-```
+### 3. Start docker containers
 
-### 3. Configure your settings in `config.json`
-
-Create MariaDB user and create a new database.  
-All the options in config.json is required.  
-Leave `telegram_channel_url` null to disable pushing notifications to telegram.
-
-Example config
 ```
-{
-  "mariadb_host": "192.168.1.100",                    # make sure the database is accessible from all workers
-  "mariadb_user": "whatanime",
-  "mariadb_pass": "whatanime",
-  "mariadb_db": "whatanime",                          # you need to create this db yourself
-  "solr_endpoint": "http://192.168.1.100:8983/solr/", # make sure this endpoint is accessible from all workers
-  "solr_core": "lire",                                # cores will be created as lire_0, lire_1, lire_2
-  "anime_path": "/mnt/nfs/data/anilist/",             # make sure the path is accessible from all workers
-  "hash_path": "/mnt/nfs/data/anilist_hash/",         # make sure the path is accessible from all workers
-  "amqp_server": "amqp://sola:sola@192.168.1.100",    # amqp://username:password@host
-  "amqp_hash_queue": "hash_video",                    # queue name
-  "amqp_load_queue": "load_hash",                     # created automatically, usually no need to change this
-  "discord_webhook_url": null,                        # https://discordapp.com/api/webhooks/xxxxx/xxxxxxxxxxx
-  "telegram_channel_id": null,                        # @your_channel_name
-  "telegram_channel_url": null                        # https://api.telegram.org/botxxxx:xxxxxxxx/sendMessage
-}
+docker-compose up -d
 ```
+This would pull and start 3 containers: mariaDB, RabbitMQ and Solr
+
+Note: Remember to check if `docker-compose.yml` has port collision with the host
 
 ### 4. Create solr core
+SOLA_SOLR_HOME must be chmod -R 777 first
 ```
-sudo npm run create-core
+npm run create-core
 ```
 Warning: If the cores with the same name are already created, it will be deleted
 
-### 5. Start a video hashing worker
-```
-npm run hash
-```
-
-### 6. Start a load hash worker
-```
-npm run load
-```
-
-### 7. Check for files and submit new jobs to workers
+### 5. Check for files and submit new jobs to the queue
 ```
 npm run check-new
 ```
-Now check if the workers receive jobs and see if they are working appropriately.
 
-In case you need to index a lot of images at the same time, you need to raise your ulimit to previent "too many opened files error". https://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/
+### 6. Start a video hashing worker
+```
+npm run hash
+```
+The worker process will stay and wait for new jobs. Start another terminal for another worker.
 
-If some tasks took too long to process (e.g. hashing long video with slow processor), you need to increase heartbeat interval on RabbitMQ.
-Found the line `{heartbeat, 60},` in `/etc/rabbitmq/rabbitmq.config` and add `{heartbeat, 1200}` below it.
+### 7. Start a load hash worker
+```
+npm run load
+```
+The worker process will stay and wait for new jobs. Start another terminal for another worker.
 
 ### 8. Submit an image search
 ```
-node src/search.js /tmp/1.jpg
+node src/search.js /path/to/your/image.jpg
 ```
-
-There is no JS API (yet). If you need to intergrate this into your app, start reading `src/search.js` (~30 lines of code) and see how you send the same HTTP requests to solr directly.
+There is no JS API. It is suggested to send HTTP requests to solr directly (just like trace.moe does). You may read `src/search.js` for reference.
 
 ### Watch for new files
+Instead of calling `npm run check-new` periodically, it can watch for file system events.
 ```
 npm run watch
 ```
@@ -231,6 +206,11 @@ npm run delete-core
 
 ## Caveats
 
+In case you need to index a lot of images at the same time, you need to raise your ulimit to previent "too many opened files error". https://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/
+
+If some tasks took too long to process (e.g. hashing long video with slow processor), you need to increase heartbeat interval on RabbitMQ.
+Found the line `{heartbeat, 60},` in `/etc/rabbitmq/rabbitmq.config` and add `{heartbeat, 1200}` below it.
+
 If you wish to run tasks in background, you can use [pm2](https://github.com/Unitech/pm2) or simply run in a detachable shell like [GNU screen](https://www.gnu.org/software/screen/).
 
 To cleanup from any dirty worker state, just stop all workers and `rm -rf /tmp/sola`
@@ -242,10 +222,10 @@ To cleanup from any dirty worker state, just stop all workers and `rm -rf /tmp/s
 Compressed hash (*.xml.xz) files takes ~375KB per 24-minute anime.  
 This assume the thumbnails are extracted at 12 fps (default).
 Storage for compressed hash does not have to be fast. Magnetic disks are fine.  
-(Side note: an archive of all *.xml.xz files from whatanime.ga can be downloaded [here](https://nyaa.si/view/1023979))
+(Side note: an archive of all *.xml.xz files from trace.moe can be downloaded [here](https://nyaa.si/view/1023979))
 
 Each doc (hash) in solr takes ~200 bytes.  
-(ref: the size of solr core on whatanime.ga is 135GB for 722 million frames)  
+(ref: the size of solr core on trace.moe is 150GB for 800 million frames)  
 Storage device of solr core must be fast. Minumum: SATA SSD, Recommended: PCI-E/nvme SSD  
 A 24-minute video has ~34560 frames. Extracting at 12 fps yields ~17280 frames. This is the number of frames in compressed hash (*.xml.xz). Before being loaded into solr, the load-hash worker use a running window to deduplicate frames of exact hash. Typically this deduplication ratio is 40%, so only 10368 frame hashes are actually loaded into solr. Which is ~2025KB in solr for each 24-minute video.
 

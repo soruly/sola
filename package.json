@@ -23,18 +23,18 @@
   },
   "homepage": "https://github.com/soruly/sola#readme",
   "dependencies": {
-    "amqplib": "^0.5.2",
+    "amqplib": "^0.5.3",
     "chokidar": "^2.0.4",
-    "dotenv": "^6.0.0",
-    "fs-extra": "^7.0.0",
+    "dotenv": "^6.2.0",
+    "fs-extra": "^7.0.1",
     "glob": "^7.1.2",
-    "lzma-native": "^4.0.1",
-    "node-fetch": "^2.2.0",
+    "lzma-native": "^4.0.3",
+    "node-fetch": "^2.3.0",
     "promise-mysql": "^3.3.1",
     "uuid": "^3.3.2",
     "xmldoc": "^1.1.2"
   },
   "devDependencies": {
-    "eslint": "^5.6.1"
+    "eslint": "^5.12.1"
   }
 }

@@ -107,6 +107,12 @@ Docker version 18.09.1, build 4c52b90
 $ docker-compose -v
 docker-compose version 1.22.0, build f46880f
 ```
+### Raise ulimit
+During hasing, a lot of images would be generated to /tmp folder. You need to [raise your ulimit](https://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/) to previent "too many opened files" error. Add these two lines to `/etc/security/limits.conf` and re-login.  
+```
+* hard nofile 1000000
+* soft nofile 1000000
+```
 
 ## Getting Started
 ### 1. Clone this repo and install
@@ -208,12 +214,9 @@ npm run delete-core
 
 ## Caveats
 
-In case you need to index a lot of images at the same time, you need to raise your ulimit to previent "too many opened files error". https://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/
+If some tasks took too long to process (e.g. hashing long video with slow processor), you may need to increase heartbeat interval on RabbitMQ. By default this is configured to 1200s in `docker/rabbitmq/rabbitmq.config`
 
-If some tasks took too long to process (e.g. hashing long video with slow processor), you need to increase heartbeat interval on RabbitMQ.
-Found the line `{heartbeat, 60},` in `/etc/rabbitmq/rabbitmq.config` and add `{heartbeat, 1200}` below it.
-
-If you wish to run tasks in background, you can use [pm2](https://github.com/Unitech/pm2) or simply run in a detachable shell like [GNU screen](https://www.gnu.org/software/screen/).
+If you wish to run tasks in background, it is recommended ton use tmux. A script `tmux.sh` is written as an example.
 
 To cleanup from any dirty worker state, just stop all workers and `rm -rf /tmp/sola`
 
@@ -243,9 +246,9 @@ By default, `sudo npm run create-core` will create 4 solr cores.
 You can specify number of solr cores by `sudo npm run create-core -- 8` for creating 8 cores  
 This does not have to match the number of CPU cores / threads you have. Even for CPUs with 32 threads you may see diminishing returns having 32 solr cores.
 
-With i7-3770, a 24-minute 720p video takes ~50 seconds to hash with one worker. 
+With Ryzen 7 2700X, a 24-minute 720p video takes ~35 seconds to hash with one worker. 
 80-90% of the time are spent on ffmpeg extracting thumnails.  
-You need to run 2-3 workers in parallel to fully utilize the CPU.  
+You need to run multiple workers in parallel to fully utilize a multi-core CPU.  
 You can take a look at the code in `src/lib/hash.js` for hard-coded parameters.
 
 ### Search parameters

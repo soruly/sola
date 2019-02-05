@@ -26,7 +26,12 @@ const {
   await knex.raw(`CREATE TABLE IF NOT EXISTS files (
             path varchar(768) COLLATE utf8mb4_unicode_ci NOT NULL,
             status enum('NEW','HASHING','HASHED','LOADING','LOADED') COLLATE utf8mb4_unicode_ci NOT NULL,
-            PRIMARY KEY (path)
+            created datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (path),
+            KEY status (status),
+            KEY created (created),
+            KEY updated (updated)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
 
   console.log(`Scanning ${SOLA_FILE_PATH}`);

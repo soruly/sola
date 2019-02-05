@@ -70,19 +70,11 @@ const load = (SOLA_HASH_PATH, relativePath, SOLA_SOLR_URL, SOLA_SOLR_CORE) => ne
 
     console.log(`Uploading xml to solr core ${selectedCoreName}`);
     await fetch(
-      `${SOLA_SOLR_URL}${selectedCoreName}/update?wt=json`,
+      `${SOLA_SOLR_URL}${selectedCoreName}/update?wt=json&commit=true`,
       {
         method: "POST",
         headers: {"Content-Type": "text/xml"},
         body: xml
-      });
-
-    await fetch(
-      `${SOLA_SOLR_URL}${selectedCoreName}/update?wt=json`,
-      {
-        method: "POST",
-        headers: {"Content-Type": "text/xml"},
-        body: "<commit/>"
       });
 
     console.log("Completed");

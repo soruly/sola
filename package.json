@@ -5,6 +5,7 @@
   "main": "",
   "scripts": {
     "check-new": "node src/check-new.js",
+    "cleanup": "node src/cleanup.js",
     "create-core": "node src/create-core.js",
     "delete-core": "node src/delete-core.js",
     "hash": "node src/hash-video.js",

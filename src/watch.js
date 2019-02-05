@@ -1,6 +1,5 @@
 require("dotenv").config();
 const fs = require("fs-extra");
-const mysql = require("promise-mysql");
 const amqp = require("amqplib");
 const chokidar = require("chokidar");
 
@@ -29,16 +28,26 @@ const {
     }
     const relativePath = filePath.replace(SOLA_FILE_PATH, "");
     console.log("Connecting to mariadb");
-    const conn = await mysql.createConnection({
-      host: SOLA_DB_HOST,
-      port: SOLA_DB_PORT,
-      user: SOLA_DB_USER,
-      password: SOLA_DB_PWD,
-      database: SOLA_DB_NAME
+    const knex = require("knex")({
+      client: "mysql",
+      connection: {
+        host: SOLA_DB_HOST,
+        port: SOLA_DB_PORT,
+        user: SOLA_DB_USER,
+        password: SOLA_DB_PWD,
+        database: SOLA_DB_NAME
+      }
     });
     console.log("Adding new file to database");
-    await conn.query(mysql.format("INSERT IGNORE INTO files (path, status) VALUES (?, 'NEW');", [relativePath]));
-    await conn.end();
+    await knex.raw(
+      knex("files")
+        .insert({
+          path: relativePath,
+          status: "NEW"
+        })
+        .toString()
+        .replace(/^insert/i, "insert ignore")
+    );
 
     console.log("Sending out hash jobs for new file");
     const connection = await amqp.connect(SOLA_MQ_URL);

@@ -1,6 +1,5 @@
 require("dotenv").config();
 const child_process = require("child_process");
-const mysql = require("promise-mysql");
 const amqp = require("amqplib");
 
 const {
@@ -12,17 +11,19 @@ const {
 
 (async () => {
   console.log("Connecting to mariadb");
-  const pool = await mysql.createPool({
-    host: SOLA_DB_HOST,
-    port: SOLA_DB_PORT,
-    user: SOLA_DB_USER,
-    password: SOLA_DB_PWD,
-    database: SOLA_DB_NAME,
-    connectionLimit: 10
+  const knex = require("knex")({
+    client: "mysql",
+    connection: {
+      host: SOLA_DB_HOST,
+      port: SOLA_DB_PORT,
+      user: SOLA_DB_USER,
+      password: SOLA_DB_PWD,
+      database: SOLA_DB_NAME
+    }
   });
 
   // console.log("Creating file table if not exist");
-  await pool.query(`CREATE TABLE IF NOT EXISTS files (
+  await knex.raw(`CREATE TABLE IF NOT EXISTS files (
             path varchar(768) COLLATE utf8mb4_unicode_ci NOT NULL,
             status enum('NEW','HASHING','HASHED','LOADING','LOADED') COLLATE utf8mb4_unicode_ci NOT NULL,
             PRIMARY KEY (path)
@@ -46,16 +47,18 @@ const {
     }, [])
     .reduce(
       (chain, group) => chain.then(() =>
-        Promise.all(group.map((filePath) => pool.query(mysql.format(
-          "INSERT IGNORE INTO files (path, status) VALUES (?, ?);",
-          [
-            filePath,
-            "NEW"
-          ]
-        ))))), Promise.resolve());
+        Promise.all(group.map((filePath) => knex.raw(
+          knex("files")
+            .insert({
+              path: filePath,
+              status: "NEW"
+            })
+            .toString()
+            .replace(/^insert/i, "insert ignore")
+        )))), Promise.resolve());
 
   console.log("Looking for new files from database");
-  const newFiles = await pool.query("SELECT path FROM files WHERE status='NEW'");
+  const newFiles = await knex("files").select("path").where("status", "NEW");
   console.log("Sending out hash jobs for new files");
   await Promise.all(newFiles.map((each) => each.path)
     .map((filePath) => new Promise(async (resolve) => {
@@ -77,7 +80,7 @@ const {
 
 
   console.log("Looking for new hashed files from database");
-  const newHash = await pool.query("SELECT path FROM files WHERE status='HASHED'");
+  const newHash = await knex("files").select("path").where("status", "HASHED");
   console.log("Sending out load jobs for new hashes");
   await Promise.all(newHash.map((each) => each.path)
     .map((filePath) => new Promise(async (resolve) => {
@@ -98,7 +101,7 @@ const {
       await connection.close();
       resolve();
     })));
-  pool.end();
+  await knex.destroy();
 
   console.log("Completed");
 })();

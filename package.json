@@ -37,6 +37,6 @@
     "xmldoc": "^1.1.2"
   },
   "devDependencies": {
-    "eslint": "5.13.0"
+    "eslint": "5.14.0"
   }
 }

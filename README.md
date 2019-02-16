@@ -112,7 +112,7 @@ During hasing, a lot of images would be generated to /tmp folder. You need to [r
 ## Getting Started
 ### 1. Clone this repo and install
 ```
-git clone git@github.com:soruly/sola.git
+git clone https://github.com/soruly/sola.git
 cd sola
 npm install
 ```

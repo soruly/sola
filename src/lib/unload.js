@@ -12,6 +12,7 @@ const unload = (relativePath, SOLA_SOLR_URL, SOLA_SOLR_CORE) => new Promise(asyn
           {
             method: "POST",
             headers: {"Content-Type": "text/xml"},
+            // http://lucene.apache.org/core/6_5_1/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#Escaping_Special_Characters
             body: `<delete><query>id:${relativePath.replace(/([ +\-!(){}[\]^"~*?:\\/])/g, "\\$1")}\\/*</query></delete>`
           })
         )

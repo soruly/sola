@@ -78,6 +78,7 @@ For details, please refer to [Optimization and Tuning](#optimization-and-tuning)
 - Linux (tested on Fedora 29)
 - Node.js 10+
 - ffmpeg
+- java
 - docker-compose
 
 ## Installing Prerequisites
@@ -87,8 +88,8 @@ Fedora 29 is used as example
 # install rpmfusion (which provides ffmpeg)
 sudo dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
 sudo dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-# install Node.js, docker and ffmpeg
-sudo dnf install -y nodejs docker-compose ffmpeg
+# install Node.js, docker, ffmpeg and java
+sudo dnf install -y nodejs docker-compose ffmpeg java-1.8.0-openjdk
 ```
 
 Verify the installed versions:
@@ -97,6 +98,10 @@ $ node -v
 v10.15.0
 $ ffmpeg -version
 ffmpeg version 4.0.3 Copyright (c) 2000-2018 the FFmpeg developers
+$ java -version
+openjdk version "1.8.0_201"
+OpenJDK Runtime Environment (build 1.8.0_201-b09)
+OpenJDK 64-Bit Server VM (build 25.201-b09, mixed mode)
 $ docker -v
 Docker version 18.09.1, build 4c52b90
 $ docker-compose -v

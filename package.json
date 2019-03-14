@@ -26,7 +26,7 @@
   "dependencies": {
     "amqplib": "^0.5.3",
     "chokidar": "^2.0.4",
-    "dotenv": "^6.2.0",
+    "dotenv": "^7.0.0",
     "fs-extra": "^7.0.1",
     "glob": "^7.1.2",
     "knex": "^0.16.3",

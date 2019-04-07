@@ -35,10 +35,10 @@ const {
       await knex("files").where("path", file).update({status: "HASHING"});
       await hash(SOLA_FILE_PATH, SOLA_HASH_PATH, file);
       await knex("files").where("path", file).update({status: "HASHED"});
-      await knex.destroy();
     } else {
       console.log(`File status is [${result[0].status}] , skip`);
     }
+    await knex.destroy();
     await channel.ack(msg);
     console.log(`Completed ${SOLA_MQ_HASH} job for ${file}`);
     await channel.assertQueue(SOLA_MQ_LOAD, {durable: false});

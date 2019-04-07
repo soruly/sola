@@ -4,7 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased - 2019
+## 0.5.0 - 2019-04-07
+### Added
+- `npm run cleanup` to unload deleted files from solr
+- created and updated time field in database
+
+### Fixed
+- Too many connections error when `npm run hash` skip jobs
+
+### Changed
+- use knex to replace promise-mysql
+
 SQL upgrade script for upgrading to 0.5.0
 ```sql
 ALTER table files

@@ -1,5 +1,4 @@
 require("dotenv").config();
-const mysql = require("promise-mysql");
 const amqp = require("amqplib");
 const {hash} = require("./lib/hash");
 
@@ -20,24 +19,26 @@ const {
     const {SOLA_FILE_PATH, SOLA_HASH_PATH, file} = JSON.parse(msg.content.toString());
     console.log(`Received ${SOLA_MQ_HASH} job for ${file}`);
     console.log("Connecting to mariadb");
-    const conn = await mysql.createConnection({
-      host: SOLA_DB_HOST,
-      port: SOLA_DB_PORT,
-      user: SOLA_DB_USER,
-      password: SOLA_DB_PWD,
-      database: SOLA_DB_NAME
+    const knex = require("knex")({
+      client: "mysql",
+      connection: {
+        host: SOLA_DB_HOST,
+        port: SOLA_DB_PORT,
+        user: SOLA_DB_USER,
+        password: SOLA_DB_PWD,
+        database: SOLA_DB_NAME
+      }
     });
-    await conn.beginTransaction();
-    const result = await conn.query(mysql.format("SELECT status FROM files WHERE path=?", [file]));
+
+    const result = await knex("files").select("status").where("path", file);
     if (result[0].status === "NEW") {
-      await conn.query(mysql.format("UPDATE files SET status='HASHING' WHERE path=?", [file]));
-      conn.commit();
+      await knex("files").where("path", file).update({status: "HASHING"});
       await hash(SOLA_FILE_PATH, SOLA_HASH_PATH, file);
-      await conn.query(mysql.format("UPDATE files SET status='HASHED' WHERE path=?", [file]));
-      await conn.end();
+      await knex("files").where("path", file).update({status: "HASHED"});
     } else {
       console.log(`File status is [${result[0].status}] , skip`);
     }
+    await knex.destroy();
     await channel.ack(msg);
     console.log(`Completed ${SOLA_MQ_HASH} job for ${file}`);
     await channel.assertQueue(SOLA_MQ_LOAD, {durable: false});

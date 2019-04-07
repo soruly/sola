@@ -75,41 +75,49 @@ For details, please refer to [Optimization and Tuning](#optimization-and-tuning)
 
 ## Prerequisites
 
-- Linux (tested on Fedora 28)
-- Node.js 8+
-- Java 8
+- Linux (tested on Fedora 29)
+- Node.js 10+
 - ffmpeg
-- Docker
+- java
+- docker-compose
 
 ## Installing Prerequisites
 
-Fedora 28 is used as example
+Fedora 29 is used as example
 ```
 # install rpmfusion (which provides ffmpeg)
-sudo dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
-sudo dnf install https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-# install Node.js, Java and ffmpeg
-sudo dnf install nodejs java-1.8.0-openjdk-devel ffmpeg
+sudo dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
+sudo dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+# install Node.js, docker, ffmpeg and java
+sudo dnf install -y nodejs docker-compose ffmpeg java-1.8.0-openjdk
 ```
 
 Verify the installed versions:
 ```
-node -v
-# v8.12.0
-java -version
-# openjdk version "1.8.0_181"
-# OpenJDK Runtime Environment (build 1.8.0_181-b15)
-# OpenJDK 64-Bit Server VM (build 25.181-b15, mixed mode)
-ffmpeg -version
-# ffmpeg version 4.0.2 Copyright (c) 2000-2018 the FFmpeg developers
-docker -v
-# Docker version 18.06.1-ce, build e68fc7a
+$ node -v
+v10.15.0
+$ ffmpeg -version
+ffmpeg version 4.0.3 Copyright (c) 2000-2018 the FFmpeg developers
+$ java -version
+openjdk version "1.8.0_201"
+OpenJDK Runtime Environment (build 1.8.0_201-b09)
+OpenJDK 64-Bit Server VM (build 25.201-b09, mixed mode)
+$ docker -v
+Docker version 18.09.1, build 4c52b90
+$ docker-compose -v
+docker-compose version 1.22.0, build f46880f
+```
+### Raise ulimit
+During hasing, a lot of images would be generated to /tmp folder. You need to [raise your ulimit](https://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/) to previent "too many opened files" error. Add these two lines to `/etc/security/limits.conf` and re-login.  
+```
+* hard nofile 1000000
+* soft nofile 1000000
 ```
 
 ## Getting Started
 ### 1. Clone this repo and install
 ```
-git clone git@github.com:soruly/sola.git
+git clone https://github.com/soruly/sola.git
 cd sola
 npm install
 ```
@@ -121,16 +129,16 @@ Copy `.env.example` to `.env`
 Example env config
 ```
 # Database setting
-SOLA_DB_HOST=192.168.1.100                     # check if the database can connect from workers
+SOLA_DB_HOST=127.0.0.1                         # check if the database can connect from workers
 SOLA_DB_PORT=3306                              # host port
-SOLA_DB_USER=whatanime                         #
-SOLA_DB_PWD=whatanime                          #
-SOLA_DB_NAME=whatanime                         # will create on docker-compose
+SOLA_DB_USER=sola                              #
+SOLA_DB_PWD=sola                               #
+SOLA_DB_NAME=sola                              # will create on docker-compose
 
 # Solr setting
 SOLA_SOLR_HOME=/mnt/data/sola_solr_home/       # this must be chmod -R 777 for solr to create cores
 SOLA_SOLR_PORT=8983                            # host port
-SOLA_SOLR_URL=http://192.168.1.100:8983/solr/  # check if this endpoint can connect from all workers
+SOLA_SOLR_URL=http://127.0.0.1:8983/solr/      # check if this endpoint can connect from all workers
 SOLA_SOLR_CORE=lire                            # cores will be created as lire_0, lire_1, lire_2
 SOLA_SOLR_HEAP=1g                              # Memory allocated for solr
 
@@ -142,7 +150,7 @@ SOLA_HASH_PATH=/mnt/nfs/data/anime_hash/       # folder for storing compressed h
 # RabbitMQ setting
 SOLA_MQ_PORT=5672                              # host port
 SOLA_MQ_PORT_MGT=15672                         # host port for WebUI
-SOLA_MQ_URL=amqp://sola:sola@192.168.1.100     # amqp://username:password@host
+SOLA_MQ_URL=amqp://sola:sola@127.0.0.1         # amqp://username:password@host
 SOLA_MQ_HASH=hash_video                        # RabbitMQ queue ID, will create automatically
 SOLA_MQ_LOAD=load_hash                         # RabbitMQ queue ID, will create automatically
 
@@ -206,12 +214,9 @@ npm run delete-core
 
 ## Caveats
 
-In case you need to index a lot of images at the same time, you need to raise your ulimit to previent "too many opened files error". https://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/
+If some tasks took too long to process (e.g. hashing long video with slow processor), you may need to increase heartbeat interval on RabbitMQ. By default this is configured to 1200s in `docker/rabbitmq/rabbitmq.config`
 
-If some tasks took too long to process (e.g. hashing long video with slow processor), you need to increase heartbeat interval on RabbitMQ.
-Found the line `{heartbeat, 60},` in `/etc/rabbitmq/rabbitmq.config` and add `{heartbeat, 1200}` below it.
-
-If you wish to run tasks in background, you can use [pm2](https://github.com/Unitech/pm2) or simply run in a detachable shell like [GNU screen](https://www.gnu.org/software/screen/).
+If you wish to run tasks in background, it is recommended ton use tmux. A script `tmux.sh` is written as an example.
 
 To cleanup from any dirty worker state, just stop all workers and `rm -rf /tmp/sola`
 
@@ -241,9 +246,9 @@ By default, `sudo npm run create-core` will create 4 solr cores.
 You can specify number of solr cores by `sudo npm run create-core -- 8` for creating 8 cores  
 This does not have to match the number of CPU cores / threads you have. Even for CPUs with 32 threads you may see diminishing returns having 32 solr cores.
 
-With i7-3770, a 24-minute 720p video takes ~50 seconds to hash with one worker. 
+With Ryzen 7 2700X, a 24-minute 720p video takes ~35 seconds to hash with one worker. 
 80-90% of the time are spent on ffmpeg extracting thumnails.  
-You need to run 2-3 workers in parallel to fully utilize the CPU.  
+You need to run multiple workers in parallel to fully utilize a multi-core CPU.  
 You can take a look at the code in `src/lib/hash.js` for hard-coded parameters.
 
 ### Search parameters

@@ -1,5 +1,4 @@
 require("dotenv").config();
-const mysql = require("promise-mysql");
 const amqp = require("amqplib");
 const fetch = require("node-fetch");
 const {URLSearchParams} = require("url");
@@ -21,27 +20,29 @@ const {
     const {SOLA_HASH_PATH, file, SOLA_SOLR_URL, SOLA_SOLR_CORE} = JSON.parse(msg.content.toString());
     console.log(`Received ${SOLA_MQ_LOAD} job for ${file}`);
     console.log("Connecting to mariadb");
-    const conn = await mysql.createConnection({
-      host: SOLA_DB_HOST,
-      port: SOLA_DB_PORT,
-      user: SOLA_DB_USER,
-      password: SOLA_DB_PWD,
-      database: SOLA_DB_NAME
+    const knex = require("knex")({
+      client: "mysql",
+      connection: {
+        host: SOLA_DB_HOST,
+        port: SOLA_DB_PORT,
+        user: SOLA_DB_USER,
+        password: SOLA_DB_PWD,
+        database: SOLA_DB_NAME
+      }
     });
-    await conn.beginTransaction();
-    const result = await conn.query(mysql.format("SELECT status FROM files WHERE path=?", [file]));
+
+    const result = await knex("files").select("status").where("path", file);
     if (result[0].status === "HASHED") {
-      await conn.query(mysql.format("UPDATE files SET status='LOADING' WHERE path=?", [file]));
-      conn.commit();
+      await knex("files").where("path", file).update({status: "LOADING"});
       try {
         await load(SOLA_HASH_PATH, file, SOLA_SOLR_URL, SOLA_SOLR_CORE);
       } catch (e) {
-        await conn.query(mysql.format("UPDATE files SET status='HASHED' WHERE path=?", [file]));
-        await conn.end();
+        await knex("files").where("path", file).update({status: "HASHED"});
+        await knex.destroy();
         return;
       }
-      await conn.query(mysql.format("UPDATE files SET status='LOADED' WHERE path=?", [file]));
-      await conn.end();
+      await knex("files").where("path", file).update({status: "LOADED"});
+      await knex.destroy();
       if (SOLA_TELEGRAM_ID && SOLA_TELEGRAM_URL) {
         console.log("Posting notification to telegram");
         await fetch(

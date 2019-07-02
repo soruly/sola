@@ -11,7 +11,9 @@
     "hash": "node src/hash-video.js",
     "load": "node src/load-hash.js",
     "watch": "node src/watch.js",
-    "test": "eslint ."
+    "format": "prettier --write \"**/*.js\"",
+    "lint": "prettier --check \"**/*.js\"",
+    "test": "prettier --check \"**/*.js\""
   },
   "repository": {
     "type": "git",
@@ -33,10 +35,9 @@
     "lzma-native": "^4.0.3",
     "mysql": "^2.16.0",
     "node-fetch": "^2.3.0",
+    "prettier": "^1.18.2",
     "uuid": "^3.3.2",
     "xmldoc": "^1.1.2"
   },
-  "devDependencies": {
-    "eslint": "^5.14.1"
-  }
+  "devDependencies": {}
 }

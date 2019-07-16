@@ -71,7 +71,8 @@ const {
             method: "POST",
             body: new URLSearchParams([
               ["chat_id", SOLA_TELEGRAM_ID],
-              ["text", file.split("/")[1]]
+              ["parse_mode", "Markdown"],
+              ["text", "`" + file.split("/")[1] + "`"]
             ])
           });
         }

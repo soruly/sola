@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 0.5.1 - 2019-08-15
+### Changed
+- Update dependencies
+- Use markdown code format for Telegram notification
+- Remove nodejs 12 support
+
 ## 0.5.0 - 2019-04-07
 ### Added
 - `npm run cleanup` to unload deleted files from solr

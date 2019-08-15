@@ -76,7 +76,7 @@ For details, please refer to [Optimization and Tuning](#optimization-and-tuning)
 ## Prerequisites
 
 - Linux (tested on Fedora 29)
-- Node.js 10+
+- Node.js 10-11
 - ffmpeg
 - java
 - docker-compose

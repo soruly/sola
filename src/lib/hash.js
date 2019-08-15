@@ -20,7 +20,7 @@ const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
   fs.emptyDirSync(tempPath);
 
   console.log("Extracting thumbnails");
-  const {stderr: ffmpegLog} = child_process.spawnSync(
+  const { stderr: ffmpegLog } = child_process.spawnSync(
     "ffmpeg",
     [
       "-i",
@@ -32,7 +32,7 @@ const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
       "fps=12,scale=-1:144,showinfo",
       `${tempPath}/%08d.jpg`
     ],
-    {encoding: "utf-8"}
+    { encoding: "utf-8" }
   );
   const myRe = /pts_time:\s*((\d|\.)+?)\s*pos/g;
   let temp = [];
@@ -49,12 +49,12 @@ const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
   const thumbnailListPath = path.join(tempPath, "frames.txt");
   fs.writeFileSync(
     thumbnailListPath,
-    thumbnailList.map((each) => path.join(tempPath, each)).join("\n")
+    thumbnailList.map(each => path.join(tempPath, each)).join("\n")
   );
 
   console.log("Analyzing frames");
   const lireSolrXMLPath = path.join(tempPath, "output.xml");
-  const {stdout, stderr} = child_process.spawnSync(
+  const { stdout, stderr } = child_process.spawnSync(
     "java",
     [
       "-cp",
@@ -74,7 +74,7 @@ const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
       "-y", // defines which feature classes are to be extracted, comma seperated
       "cl" // cl,eh,jc,oh,ph,ac,ad,ce,fc,fo,jh,sc
     ],
-    {encoding: "utf-8"}
+    { encoding: "utf-8" }
   );
   console.log(stdout);
   console.log(stderr);
@@ -84,19 +84,26 @@ const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
   // and sort by timecode in ascending order
   const parsedXML = [
     "<add>",
-    fs.readFileSync(lireSolrXMLPath, "utf-8").split("\n")
-      .map((line) => line.trim())
-      .filter((line) => line.indexOf("<doc>") === 0)
-      .map((line) => line
-        .replace(/<field name="title">(.*?)<\/field>/g, "")
-        .replace(
-          /<field name="id">.*\/(.*?\.jpg)<\/field>/g,
-          (match, p1) => `<field name="id">${timeCodeList[thumbnailList.indexOf(p1)]}</field>`
-        )
+    fs
+      .readFileSync(lireSolrXMLPath, "utf-8")
+      .split("\n")
+      .map(line => line.trim())
+      .filter(line => line.indexOf("<doc>") === 0)
+      .map(line =>
+        line
+          .replace(/<field name="title">(.*?)<\/field>/g, "")
+          .replace(
+            /<field name="id">.*\/(.*?\.jpg)<\/field>/g,
+            (match, p1) =>
+              `<field name="id">${
+                timeCodeList[thumbnailList.indexOf(p1)]
+              }</field>`
+          )
       )
       .sort(
-        (a, b) => parseFloat(a.match(/<field name="id">(.*?)<\/field>/)[1]) -
-                  parseFloat(b.match(/<field name="id">(.*?)<\/field>/)[1])
+        (a, b) =>
+          parseFloat(a.match(/<field name="id">(.*?)<\/field>/)[1]) -
+          parseFloat(b.match(/<field name="id">(.*?)<\/field>/)[1])
       )
       .join("\n"),
     "</add>"
@@ -104,7 +111,7 @@ const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
   // fs.writeFileSync("debug.xml", parsedXML);
 
   console.log("Compressing XML");
-  const compressedXML = await lzma.compress(parsedXML, {preset: 6});
+  const compressedXML = await lzma.compress(parsedXML, { preset: 6 });
   console.log("Writing output XML");
   fs.ensureFileSync(xmlZipFilePath);
   fs.writeFileSync(xmlZipFilePath, compressedXML, "binary");
@@ -115,4 +122,4 @@ const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
   console.log("Completed");
 };
 
-module.exports = {hash};
+module.exports = { hash };

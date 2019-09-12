@@ -18,9 +18,10 @@ sola is not limited to use with anime. As long as the video is in mp4 format, th
 Let's say I have an image:
 ![](https://images.plurk.com/wOMmC7dfE6kJJCclGfqw.jpg)
 
-And I've a number of mp4 files in folder 98693/*.mp4 indexed and loaded into solr
+And I've a number of mp4 files in folder 98693/\*.mp4 indexed and loaded into solr
 
 Now I lookup when and where this scene appears:
+
 ```
 [soruly@socky sola]$ node src/search.js /tmp/1.jpg
 Searching http://192.168.1.100:8983/solr/lire_* for /mnt/nfs/store/1.jpg
@@ -46,12 +47,13 @@ Searching http://192.168.1.100:8983/solr/lire_* for /mnt/nfs/store/1.jpg
     "id": "98693/[Neo.sub][Slow Start][07][GB][1080P].mp4/36.83"
   }
 ]
-[soruly@socky sola]$ 
+[soruly@socky sola]$
 ```
 
 This scene can be found in `98693/[Neo.sub][Slow Start][07][GB][1080P].mp4` at time `00:36.83` with 2.828% difference.
 
 ## Features
+
 - Helper command to setup liresolr and multiple solr cores
 - Distributed workers for indexing video
 - Load pre-hashed files into multiple cores (balanced)
@@ -84,6 +86,7 @@ For details, please refer to [Optimization and Tuning](#optimization-and-tuning)
 ## Installing Prerequisites
 
 Fedora 29 is used as example
+
 ```
 # install rpmfusion (which provides ffmpeg)
 sudo dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
@@ -93,6 +96,7 @@ sudo dnf install -y nodejs docker-compose ffmpeg java-1.8.0-openjdk
 ```
 
 Verify the installed versions:
+
 ```
 $ node -v
 v10.15.0
@@ -107,15 +111,20 @@ Docker version 18.09.1, build 4c52b90
 $ docker-compose -v
 docker-compose version 1.22.0, build f46880f
 ```
+
 ### Raise ulimit
-During hasing, a lot of images would be generated to /tmp folder. You need to [raise your ulimit](https://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/) to previent "too many opened files" error. Add these two lines to `/etc/security/limits.conf` and re-login.  
+
+During hashing, a lot of images would be generated to /tmp folder. You need to [raise your ulimit](https://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/) to previent "too many opened files" error. Add these two lines to `/etc/security/limits.conf` and re-login.
+
 ```
 * hard nofile 1000000
 * soft nofile 1000000
 ```
 
 ## Getting Started
+
 ### 1. Clone this repo and install
+
 ```
 git clone https://github.com/soruly/sola.git
 cd sola
@@ -127,6 +136,7 @@ npm install
 Copy `.env.example` to `.env`
 
 Example env config
+
 ```
 # Database setting
 SOLA_DB_HOST=127.0.0.1                         # check if the database can connect from workers
@@ -165,49 +175,64 @@ SOLA_TELEGRAM_URL=                             # https://api.telegram.org/botxxx
 ```
 docker-compose up -d
 ```
+
 This would pull and start 3 containers: mariaDB, RabbitMQ and Solr
 
 Note: Remember to check if `docker-compose.yml` has port collision with the host
 
 ### 4. Create solr core
+
 SOLA_SOLR_HOME must be chmod -R 777 first
+
 ```
 npm run create-core
 ```
+
 Warning: If the cores with the same name are already created, it will be deleted
 
 ### 5. Check for files and submit new jobs to the queue
+
 ```
 npm run check-new
 ```
 
 ### 6. Start a video hashing worker
+
 ```
 npm run hash
 ```
+
 The worker process will stay and wait for new jobs. Start another terminal for another worker.
 
 ### 7. Start a load hash worker
+
 ```
 npm run load
 ```
+
 The worker process will stay and wait for new jobs. Start another terminal for another worker.
 
 ### 8. Submit an image search
+
 ```
 node src/search.js /path/to/your/image.jpg
 ```
+
 There is no JS API. It is suggested to send HTTP requests to solr directly (just like trace.moe does). You may read `src/search.js` for reference.
 
 ### Watch for new files
+
 Instead of calling `npm run check-new` periodically, it can watch for file system events.
+
 ```
 npm run watch
 ```
+
 To increase OS limit on numbers of files to watch, use  
 `echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p`
 
 ### Delete solr core
+
 ```
 npm run delete-core
 ```
@@ -224,20 +249,20 @@ To cleanup from any dirty worker state, just stop all workers and `rm -rf /tmp/s
 
 ### Storage space
 
-Compressed hash (*.xml.xz) files takes ~375KB per 24-minute anime.  
+Compressed hash (_.xml.xz) files takes ~375KB per 24-minute anime.  
 This assume the thumbnails are extracted at 12 fps (default).
 Storage for compressed hash does not have to be fast. Magnetic disks are fine.  
-(Side note: an archive of all *.xml.xz files from trace.moe can be downloaded [here](https://nyaa.si/view/1023979))
+(Side note: an archive of all _.xml.xz files from trace.moe can be downloaded [here](https://nyaa.si/view/1023979))
 
 Each doc (hash) in solr takes ~200 bytes.  
 (ref: the size of solr core on trace.moe is 150GB for 800 million frames)  
-Storage device of solr core must be fast. Minumum: SATA SSD, Recommended: PCI-E/nvme SSD  
-A 24-minute video has ~34560 frames. Extracting at 12 fps yields ~17280 frames. This is the number of frames in compressed hash (*.xml.xz). Before being loaded into solr, the load-hash worker use a running window to deduplicate frames of exact hash. Typically this deduplication ratio is 40%, so only 10368 frame hashes are actually loaded into solr. Which is ~2025KB in solr for each 24-minute video.
+Storage device of solr core must be fast. Minimum: SATA SSD, Recommended: PCI-E/nvme SSD  
+A 24-minute video has ~34560 frames. Extracting at 12 fps yields ~17280 frames. This is the number of frames in compressed hash (\*.xml.xz). Before being loaded into solr, the load-hash worker use a running window to deduplicate frames of exact hash. Typically this deduplication ratio is 40%, so only 10368 frame hashes are actually loaded into solr. Which is ~2025KB in solr for each 24-minute video.
 
 ### Memory
 
 Indexing is not memory consuming, each worker use no more than 1GB RAM. (<100MB idle)  
-To have a reasonabily fast search speed, your system RAM should be at least 30% the size of solr core. (i.e. 32GB RAM for a 100GB solr core)  
+To have a reasonably fast search speed, your system RAM should be at least 30% the size of solr core. (i.e. 32GB RAM for a 100GB solr core)  
 You can set 2-16GB RAM for solr in `/etc/default/solr.in.sh`. Do not allocate too much (no more than 50% of your RAM). For the reset of your RAM, leave them be, and they will become file system cache (OS cache), which cache file contents on disks.
 
 ### Processor
@@ -246,8 +271,8 @@ By default, `sudo npm run create-core` will create 4 solr cores.
 You can specify number of solr cores by `sudo npm run create-core -- 8` for creating 8 cores  
 This does not have to match the number of CPU cores / threads you have. Even for CPUs with 32 threads you may see diminishing returns having 32 solr cores.
 
-With Ryzen 7 2700X, a 24-minute 720p video takes ~35 seconds to hash with one worker. 
-80-90% of the time are spent on ffmpeg extracting thumnails.  
+With Ryzen 7 2700X, a 24-minute 720p video takes ~35 seconds to hash with one worker.
+80-90% of the time are spent on ffmpeg extracting thumbnails.  
 You need to run multiple workers in parallel to fully utilize a multi-core CPU.  
 You can take a look at the code in `src/lib/hash.js` for hard-coded parameters.
 
@@ -255,6 +280,6 @@ You can take a look at the code in `src/lib/hash.js` for hard-coded parameters.
 
 `candidates=1000000` 1 million is usually accurate and fast enough. Search would be slow above 5 million candidates. Setting candidates to low values (e.g. 100k) would greatly improve search performance but reduce accuracy. But as long as your most populated hash is less than this value, the search is accurate as it covers 100% records in solr.
 
-`rows=10` chaning this has no effect on accuracy. It merely filter out returning results after search completed and sorted. 
+`rows=10` changing this has no effect on accuracy. It merely filter out returning results after search completed and sorted.
 
 `accuracy=0` the param is misleading here. The number here is used to choose "clusters", or "hash groups" to search. 0 is the least populated cluster that may found a match. 1 is the second least populated, and so on. If you cannot find any matches after searching first 6 clusters, you are unlikely to find any better matches beyond that. This is because of Locality-sensitive hashing.

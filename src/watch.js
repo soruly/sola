@@ -61,7 +61,7 @@ const {
       const connection = await amqp.connect(SOLA_MQ_URL);
       const channel = await connection.createChannel();
       await channel.assertQueue(SOLA_MQ_HASH, { durable: false });
-      console.log(`Submiting ${SOLA_MQ_HASH} job for ${relativePath}`);
+      console.log(`Submitting ${SOLA_MQ_HASH} job for ${relativePath}`);
       await channel.sendToQueue(
         SOLA_MQ_HASH,
         Buffer.from(

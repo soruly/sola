@@ -109,7 +109,7 @@ const {
                   const connection = await amqp.connect(SOLA_MQ_URL);
                   const channel = await connection.createChannel();
                   await channel.assertQueue(SOLA_MQ_HASH, { durable: false });
-                  // console.log(`Submiting ${SOLA_MQ_HASH} job for ${filePath}`);
+                  // console.log(`Submitting ${SOLA_MQ_HASH} job for ${filePath}`);
                   await channel.sendToQueue(
                     SOLA_MQ_HASH,
                     Buffer.from(
@@ -159,7 +159,7 @@ const {
                   const connection = await amqp.connect(SOLA_MQ_URL);
                   const channel = await connection.createChannel();
                   await channel.assertQueue(SOLA_MQ_LOAD, { durable: false });
-                  // console.log(`Submiting ${SOLA_MQ_LOAD} job for ${filePath}`);
+                  // console.log(`Submitting ${SOLA_MQ_LOAD} job for ${filePath}`);
                   await channel.sendToQueue(
                     SOLA_MQ_LOAD,
                     Buffer.from(

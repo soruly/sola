@@ -59,7 +59,7 @@ const {
       await channel.ack(msg);
       console.log(`Completed ${SOLA_MQ_HASH} job for ${file}`);
       await channel.assertQueue(SOLA_MQ_LOAD, { durable: false });
-      console.log(`Submiting ${SOLA_MQ_LOAD} job for ${file}`);
+      console.log(`Submitting ${SOLA_MQ_LOAD} job for ${file}`);
       await channel.sendToQueue(
         SOLA_MQ_LOAD,
         Buffer.from(

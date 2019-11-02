@@ -46,7 +46,9 @@ const {
   const concurrency = 50;
   const args = process.argv[2] ? `-mmin -${process.argv[2]}` : "";
   const fileList = child_process
-    .execSync(`find -L ${SOLA_FILE_PATH} -type f -name "*.mp4" ${args}`)
+    .execSync(`find -L ${SOLA_FILE_PATH} -type f -name "*.mp4" ${args}`, {
+      maxBuffer: 1024 * 1024 * 100
+    })
     .toString()
     .split("\n")
     .filter(each => each);

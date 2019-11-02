@@ -32,7 +32,7 @@ const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
       "fps=12,scale=-1:144,showinfo",
       `${tempPath}/%08d.jpg`
     ],
-    { encoding: "utf-8" }
+    { encoding: "utf-8", maxBuffer: 1024 * 1024 * 100 }
   );
   const myRe = /pts_time:\s*((\d|\.)+?)\s*pos/g;
   let temp = [];
@@ -74,7 +74,7 @@ const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
       "-y", // defines which feature classes are to be extracted, comma seperated
       "cl" // cl,eh,jc,oh,ph,ac,ad,ce,fc,fo,jh,sc
     ],
-    { encoding: "utf-8" }
+    { encoding: "utf-8", maxBuffer: 1024 * 1024 * 100 }
   );
   console.log(stdout);
   console.log(stderr);

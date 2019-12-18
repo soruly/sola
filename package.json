@@ -35,9 +35,10 @@
     "lzma-native": "^5.0.0",
     "mysql": "^2.16.0",
     "node-fetch": "^2.3.0",
-    "prettier": "^1.18.2",
     "uuid": "^3.3.2",
     "xmldoc": "^1.1.2"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "prettier": "^1.19.1"
+  }
 }

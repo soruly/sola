@@ -46,7 +46,9 @@ const {
   const concurrency = 50;
   const args = process.argv[2] ? `-mmin -${process.argv[2]}` : "";
   const fileList = child_process
-    .execSync(`find -L ${SOLA_FILE_PATH} -type f -name "*.mp4" ${args}`)
+    .execSync(`find -L ${SOLA_FILE_PATH} -type f -name "*.mp4" ${args}`, {
+      maxBuffer: 1024 * 1024 * 100
+    })
     .toString()
     .split("\n")
     .filter(each => each);
@@ -109,7 +111,7 @@ const {
                   const connection = await amqp.connect(SOLA_MQ_URL);
                   const channel = await connection.createChannel();
                   await channel.assertQueue(SOLA_MQ_HASH, { durable: false });
-                  // console.log(`Submiting ${SOLA_MQ_HASH} job for ${filePath}`);
+                  // console.log(`Submitting ${SOLA_MQ_HASH} job for ${filePath}`);
                   await channel.sendToQueue(
                     SOLA_MQ_HASH,
                     Buffer.from(
@@ -159,7 +161,7 @@ const {
                   const connection = await amqp.connect(SOLA_MQ_URL);
                   const channel = await connection.createChannel();
                   await channel.assertQueue(SOLA_MQ_LOAD, { durable: false });
-                  // console.log(`Submiting ${SOLA_MQ_LOAD} job for ${filePath}`);
+                  // console.log(`Submitting ${SOLA_MQ_LOAD} job for ${filePath}`);
                   await channel.sendToQueue(
                     SOLA_MQ_LOAD,
                     Buffer.from(

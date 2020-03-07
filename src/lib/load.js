@@ -65,9 +65,9 @@ const load = (SOLA_HASH_PATH, relativePath, SOLA_SOLR_URL, SOLA_SOLR_CORE) =>
     // fs.writeFileSync("debug.xml", xml);
 
     try {
-      const coreInfo = await fetch(`${SOLA_SOLR_URL}admin/cores?wt=json`).then(
-        res => res.json()
-      );
+      const coreInfo = await fetch(
+        `${SOLA_SOLR_URL}admin/cores?wt=json`
+      ).then(res => res.json());
 
       const selectedCoreName = Object.values(coreInfo.status)
         .filter(e => e.name.indexOf(`${SOLA_SOLR_CORE}_`) === 0)

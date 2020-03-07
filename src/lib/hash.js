@@ -3,7 +3,7 @@ const os = require("os");
 const fs = require("fs-extra");
 const child_process = require("child_process");
 const lzma = require("lzma-native");
-const uuidv1 = require("uuid/v1");
+const { v4: uuidv4 } = require("uuid");
 
 const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
   const mp4FilePath = path.join(SOLA_FILE_PATH, relativePath);
@@ -14,7 +14,7 @@ const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
   }
   const xmlZipFilePath = `${path.join(SOLA_HASH_PATH, relativePath)}.xml.xz`;
 
-  const tempPath = path.join(os.tmpdir(), "sola", uuidv1());
+  const tempPath = path.join(os.tmpdir(), "sola", uuidv4());
   console.log(`Creating temp directory ${tempPath}`);
   fs.ensureDirSync(tempPath);
   fs.emptyDirSync(tempPath);
@@ -32,7 +32,7 @@ const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
       "fps=12,scale=-1:144,showinfo",
       `${tempPath}/%08d.jpg`
     ],
-    { encoding: "utf-8" }
+    { encoding: "utf-8", maxBuffer: 1024 * 1024 * 100 }
   );
   const myRe = /pts_time:\s*((\d|\.)+?)\s*pos/g;
   let temp = [];
@@ -74,7 +74,7 @@ const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
       "-y", // defines which feature classes are to be extracted, comma seperated
       "cl" // cl,eh,jc,oh,ph,ac,ad,ce,fc,fo,jh,sc
     ],
-    { encoding: "utf-8" }
+    { encoding: "utf-8", maxBuffer: 1024 * 1024 * 100 }
   );
   console.log(stdout);
   console.log(stderr);

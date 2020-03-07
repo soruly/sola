@@ -6,7 +6,7 @@ const { SOLA_SOLR_URL, SOLA_SOLR_CORE } = process.env;
 
 (async () => {
   const file = path.resolve(process.argv[2]);
-  console.log(`Searching ${SOLA_SOLR_URL + SOLA_SOLR_CORE}_* for ${file}`);
+  console.log(`Searching ${SOLA_SOLR_URL}${SOLA_SOLR_CORE}_* for ${file}`);
 
   const solr = await fetch(`${SOLA_SOLR_URL}admin/cores?wt=json`).then(res =>
     res.json()
@@ -17,8 +17,7 @@ const { SOLA_SOLR_URL, SOLA_SOLR_CORE } = process.env;
       .filter(coreName => coreName.indexOf(`${SOLA_SOLR_CORE}_`) === 0) // select all cores of the name
       .map(
         coreName =>
-          `${SOLA_SOLR_URL +
-            coreName}/lireq?&field=cl_ha&ms=false&accuracy=0&candidates=1000000&rows=10`
+          `${SOLA_SOLR_URL}${coreName}/lireq?&field=cl_ha&ms=false&accuracy=0&candidates=1000000&rows=10`
       )
       .map(uri =>
         fetch(uri, {

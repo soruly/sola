@@ -30,7 +30,7 @@ const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
       "-an",
       "-vf",
       "fps=12,scale=-1:144,showinfo",
-      `${tempPath}/%08d.jpg`
+      `${tempPath}/%08d.jpg`,
     ],
     { encoding: "utf-8", maxBuffer: 1024 * 1024 * 100 }
   );
@@ -49,7 +49,7 @@ const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
   const thumbnailListPath = path.join(tempPath, "frames.txt");
   fs.writeFileSync(
     thumbnailListPath,
-    thumbnailList.map(each => path.join(tempPath, each)).join("\n")
+    thumbnailList.map((each) => path.join(tempPath, each)).join("\n")
   );
 
   console.log("Analyzing frames");
@@ -72,7 +72,7 @@ const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
       "-n", // number of threads
       16,
       "-y", // defines which feature classes are to be extracted, comma seperated
-      "cl" // cl,eh,jc,oh,ph,ac,ad,ce,fc,fo,jh,sc
+      "cl", // cl,eh,jc,oh,ph,ac,ad,ce,fc,fo,jh,sc
     ],
     { encoding: "utf-8", maxBuffer: 1024 * 1024 * 100 }
   );
@@ -87,9 +87,9 @@ const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
     fs
       .readFileSync(lireSolrXMLPath, "utf-8")
       .split("\n")
-      .map(line => line.trim())
-      .filter(line => line.indexOf("<doc>") === 0)
-      .map(line =>
+      .map((line) => line.trim())
+      .filter((line) => line.indexOf("<doc>") === 0)
+      .map((line) =>
         line
           .replace(/<field name="title">(.*?)<\/field>/g, "")
           .replace(
@@ -106,7 +106,7 @@ const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
           parseFloat(b.match(/<field name="id">(.*?)<\/field>/)[1])
       )
       .join("\n"),
-    "</add>"
+    "</add>",
   ].join("\n");
   // fs.writeFileSync("debug.xml", parsedXML);
 

@@ -5,12 +5,12 @@ const unload = (relativePath, SOLA_SOLR_URL, SOLA_SOLR_CORE) =>
     try {
       const coreInfo = await fetch(
         `${SOLA_SOLR_URL}admin/cores?wt=json`
-      ).then(res => res.json());
+      ).then((res) => res.json());
       await Promise.all(
         Object.values(coreInfo.status)
-          .filter(e => e.name.indexOf(`${SOLA_SOLR_CORE}_`) === 0)
-          .map(core => core.name)
-          .map(coreName =>
+          .filter((e) => e.name.indexOf(`${SOLA_SOLR_CORE}_`) === 0)
+          .map((core) => core.name)
+          .map((coreName) =>
             fetch(`${SOLA_SOLR_URL}${coreName}/update?wt=json&commit=true`, {
               method: "POST",
               headers: { "Content-Type": "text/xml" },
@@ -18,7 +18,7 @@ const unload = (relativePath, SOLA_SOLR_URL, SOLA_SOLR_CORE) =>
               body: `<delete><query>id:${relativePath.replace(
                 /([ +\-!(){}[\]^"~*?:\\/])/g,
                 "\\$1"
-              )}\\/*</query></delete>`
+              )}\\/*</query></delete>`,
             })
           )
       );

@@ -11,6 +11,7 @@
     "hash": "node src/hash-video.js",
     "load": "node src/load-hash.js",
     "watch": "node src/watch.js",
+    "prettier": "prettier",
     "format": "prettier --write \"**/*.js\"",
     "lint": "prettier --check \"**/*.js\"",
     "test": "prettier --check \"**/*.js\""

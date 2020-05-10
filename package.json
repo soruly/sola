@@ -4,6 +4,11 @@
   "description": "",
   "main": "",
   "scripts": {
+    "start": "pm2 start ecosystem.config.js",
+    "stop": "pm2 stop ecosystem.config.js",
+    "restart": "pm2 restart ecosystem.config.js",
+    "reload": "pm2 reload ecosystem.config.js",
+    "delete": "pm2 delete ecosystem.config.js",
     "check-new": "node src/check-new.js",
     "cleanup": "node src/cleanup.js",
     "create-core": "node src/create-core.js",

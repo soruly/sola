@@ -8,7 +8,7 @@ const unload = (relativePath, SOLA_SOLR_URL, SOLA_SOLR_CORE) =>
       ).then((res) => res.json());
       await Promise.all(
         Object.values(coreInfo.status)
-          .filter((e) => e.name.indexOf(`${SOLA_SOLR_CORE}_`) === 0)
+          .filter((e) => e.name.match(new RegExp(`${SOLA_SOLR_CORE}_\\d+`)))
           .map((core) => core.name)
           .map((coreName) =>
             fetch(`${SOLA_SOLR_URL}${coreName}/update?wt=json&commit=true`, {

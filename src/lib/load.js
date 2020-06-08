@@ -70,7 +70,7 @@ const load = (SOLA_HASH_PATH, relativePath, SOLA_SOLR_URL, SOLA_SOLR_CORE) =>
       ).then((res) => res.json());
 
       const selectedCoreName = Object.values(coreInfo.status)
-        .filter((e) => e.name.indexOf(`${SOLA_SOLR_CORE}_`) === 0)
+        .filter((e) => e.name.match(new RegExp(`${SOLA_SOLR_CORE}_\\d+`)))
         .sort((a, b) => a.index.numDocs - b.index.numDocs)[0].name; // choose least populated core
 
       console.log(`Uploading xml to solr core ${selectedCoreName}`);

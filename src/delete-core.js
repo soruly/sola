@@ -25,7 +25,7 @@ const deleteCore = async (coreName) => {
   ).then((res) => res.json());
 
   Object.keys(result.status) // get the names of all loaded cores
-    .filter((coreName) => coreName.indexOf(`${SOLA_SOLR_CORE}_`) === 0) // select all cores of the name
+    .filter((coreName) => coreName.match(new RegExp(`${SOLA_SOLR_CORE}_\\d+`))) // select all cores of the name
     .reduce(
       (chain, coreName) => chain.then(() => deleteCore(coreName)),
       Promise.resolve([])

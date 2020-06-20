@@ -17,7 +17,7 @@ const { SOLA_SOLR_URL, SOLA_SOLR_CORE } = process.env;
       ) => coreName.match(new RegExp(`${SOLA_SOLR_CORE}_\\d+`)))
       .map(
         (coreName) =>
-          `${SOLA_SOLR_URL}${coreName}/lireq?&field=cl_ha&ms=false&accuracy=0&candidates=1000000&rows=10`
+          `${SOLA_SOLR_URL}${coreName}/lireq?&field=jc_ha&ms=false&accuracy=0&candidates=1000000&rows=10`
       )
       .map((uri) =>
         fetch(uri, {

@@ -29,7 +29,7 @@ const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
       2,
       "-an",
       "-vf",
-      "fps=12,scale=-1:144,showinfo",
+      "fps=12,scale=-2:180,showinfo", // 24000/1001
       `${tempPath}/%08d.jpg`,
     ],
     { encoding: "utf-8", maxBuffer: 1024 * 1024 * 100 }
@@ -38,7 +38,7 @@ const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
   let temp = [];
   const timeCodeList = [];
   while ((temp = myRe.exec(ffmpegLog)) !== null) {
-    timeCodeList.push(parseFloat(temp[1]).toFixed(2));
+    timeCodeList.push(parseFloat(temp[1]).toFixed(4));
   }
   console.log(`Extracted ${timeCodeList.length} timecode`);
 
@@ -72,7 +72,7 @@ const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
       "-n", // number of threads
       16,
       "-y", // defines which feature classes are to be extracted, comma seperated
-      "cl", // cl,eh,jc,oh,ph,ac,ad,ce,fc,fo,jh,sc
+      "jc", // cl,eh,jc,oh,ph,ac,ad,ce,fc,fo,jh,sc
     ],
     { encoding: "utf-8", maxBuffer: 1024 * 1024 * 100 }
   );

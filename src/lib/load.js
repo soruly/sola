@@ -19,9 +19,7 @@ const load = (SOLA_HASH_PATH, relativePath, SOLA_SOLR_URL, SOLA_SOLR_CORE) =>
       .map((doc) => {
         const fields = doc.children.filter((child) => child.name === "field");
         return {
-          time: parseFloat(
-            fields.filter((field) => field.attr.name === "id")[0].val
-          ),
+          time: parseFloat(fields.filter((field) => field.attr.name === "id")[0].val),
           cl_hi: fields.filter((field) => field.attr.name === "cl_hi")[0].val,
           cl_ha: fields.filter((field) => field.attr.name === "cl_ha")[0].val,
         };
@@ -65,23 +63,18 @@ const load = (SOLA_HASH_PATH, relativePath, SOLA_SOLR_URL, SOLA_SOLR_CORE) =>
     // fs.writeFileSync("debug.xml", xml);
 
     try {
-      const coreInfo = await fetch(
-        `${SOLA_SOLR_URL}admin/cores?wt=json`
-      ).then((res) => res.json());
+      const coreInfo = await fetch(`${SOLA_SOLR_URL}admin/cores?wt=json`).then((res) => res.json());
 
       const selectedCoreName = Object.values(coreInfo.status)
         .filter((e) => e.name.match(new RegExp(`${SOLA_SOLR_CORE}_\\d+`)))
         .sort((a, b) => a.index.numDocs - b.index.numDocs)[0].name; // choose least populated core
 
       console.log(`Uploading xml to solr core ${selectedCoreName}`);
-      await fetch(
-        `${SOLA_SOLR_URL}${selectedCoreName}/update?wt=json&commit=true`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "text/xml" },
-          body: xml,
-        }
-      );
+      await fetch(`${SOLA_SOLR_URL}${selectedCoreName}/update?wt=json&commit=true`, {
+        method: "POST",
+        headers: { "Content-Type": "text/xml" },
+        body: xml,
+      });
 
       console.log("Completed");
       resolve();

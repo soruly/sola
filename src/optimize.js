@@ -5,9 +5,7 @@ const { SOLA_SOLR_URL } = process.env;
 (async () => {
   console.log(`Reading core info from ${SOLA_SOLR_URL}`);
   const status = (
-    await fetch(
-      `${SOLA_SOLR_URL}admin/cores?indexInfo=true&wt=json`
-    ).then((res) => res.json())
+    await fetch(`${SOLA_SOLR_URL}admin/cores?indexInfo=true&wt=json`).then((res) => res.json())
   ).status;
 
   for (const coreName of Object.keys(status)) {

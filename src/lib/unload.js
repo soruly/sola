@@ -3,9 +3,7 @@ const fetch = require("node-fetch");
 const unload = (relativePath, SOLA_SOLR_URL, SOLA_SOLR_CORE) =>
   new Promise(async (resolve, reject) => {
     try {
-      const coreInfo = await fetch(
-        `${SOLA_SOLR_URL}admin/cores?wt=json`
-      ).then((res) => res.json());
+      const coreInfo = await fetch(`${SOLA_SOLR_URL}admin/cores?wt=json`).then((res) => res.json());
       await Promise.all(
         Object.values(coreInfo.status)
           .filter((e) => e.name.match(new RegExp(`${SOLA_SOLR_CORE}_\\d+`)))

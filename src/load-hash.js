@@ -26,12 +26,9 @@ const {
   channel.consume(
     SOLA_MQ_LOAD,
     async (msg) => {
-      const {
-        SOLA_HASH_PATH,
-        file,
-        SOLA_SOLR_URL,
-        SOLA_SOLR_CORE,
-      } = JSON.parse(msg.content.toString());
+      const { SOLA_HASH_PATH, file, SOLA_SOLR_URL, SOLA_SOLR_CORE } = JSON.parse(
+        msg.content.toString()
+      );
       console.log(`Received ${SOLA_MQ_LOAD} job for ${file}`);
       console.log("Connecting to mariadb");
       const knex = require("knex")({

@@ -8,9 +8,7 @@ const { SOLA_SOLR_URL, SOLA_SOLR_CORE } = process.env;
   const file = path.resolve(process.argv[2]);
   console.log(`Searching ${SOLA_SOLR_URL}${SOLA_SOLR_CORE}_* for ${file}`);
 
-  const solr = await fetch(`${SOLA_SOLR_URL}admin/cores?wt=json`).then((res) =>
-    res.json()
-  );
+  const solr = await fetch(`${SOLA_SOLR_URL}admin/cores?wt=json`).then((res) => res.json());
 
   const result = await Promise.all(
     Object.keys(solr.status) // get the names of all loaded cores

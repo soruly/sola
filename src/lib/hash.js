@@ -94,10 +94,7 @@ const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
           .replace(/<field name="title">(.*?)<\/field>/g, "")
           .replace(
             /<field name="id">.*\/(.*?\.jpg)<\/field>/g,
-            (match, p1) =>
-              `<field name="id">${
-                timeCodeList[thumbnailList.indexOf(p1)]
-              }</field>`
+            (match, p1) => `<field name="id">${timeCodeList[thumbnailList.indexOf(p1)]}</field>`
           )
       )
       .sort(

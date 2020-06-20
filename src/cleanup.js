@@ -52,9 +52,7 @@ const {
                   if (!fs.existsSync(path.join(SOLA_FILE_PATH, filePath))) {
                     console.log(`Deleting ${filePath} from solr`);
                     await unload(filePath, SOLA_SOLR_URL, SOLA_SOLR_CORE);
-                    fs.removeSync(
-                      `${path.join(SOLA_HASH_PATH, filePath)}.xml.xz`
-                    );
+                    fs.removeSync(`${path.join(SOLA_HASH_PATH, filePath)}.xml.xz`);
                     await knex("files").where("path", filePath).del();
                   }
                   resolve();

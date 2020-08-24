@@ -1,5 +1,6 @@
 require("dotenv").config();
 const path = require("path");
+const child_process = require("child_process");
 const fs = require("fs-extra");
 const { unload } = require("./lib/unload");
 
@@ -16,6 +17,23 @@ const {
 } = process.env;
 
 (async () => {
+  console.log(`Scanning ${SOLA_HASH_PATH}`);
+  const fileList = child_process
+    .execSync(`find -L ${SOLA_HASH_PATH} -type f -name "*.xml.xz"`, {
+      maxBuffer: 1024 * 1024 * 100,
+    })
+    .toString()
+    .split("\n")
+    .filter((each) => each);
+
+  for (const xmlPath of fileList) {
+    const mp4Path = xmlPath.replace(SOLA_HASH_PATH, SOLA_FILE_PATH).replace(".xml.xz", "");
+    if (!fs.existsSync(mp4Path)) {
+      console.log(`Deleting ${xmlPath}`);
+      fs.removeSync(xmlPath);
+    }
+  }
+
   console.log("Connecting to mariadb");
   const knex = require("knex")({
     client: "mysql",
@@ -27,6 +45,17 @@ const {
       database: SOLA_DB_NAME,
     },
   });
+
+  console.log("Checking invalid states");
+  const rows = await knex("files").select("path", "status");
+
+  for (const row of rows) {
+    if (["HASHED", "LOADING", "LOADED"].includes(row.status)) {
+      if (!fs.existsSync(path.join(SOLA_HASH_PATH, `${row.path}.xml.xz`))) {
+        console.log(`Hash not found: ${row.path}`);
+      }
+    }
+  }
 
   console.log("Looking for deleted files");
   const concurrency = 10;

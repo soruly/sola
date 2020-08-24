@@ -63,6 +63,7 @@ const load = (SOLA_HASH_PATH, relativePath, SOLA_SOLR_URL, SOLA_SOLR_CORE) =>
     // fs.writeFileSync("debug.xml", xml);
 
     try {
+      console.log("Deciding which solr core to upload");
       const coreInfo = await fetch(`${SOLA_SOLR_URL}admin/cores?wt=json`).then((res) => res.json());
 
       const selectedCoreName = Object.values(coreInfo.status)
@@ -76,7 +77,6 @@ const load = (SOLA_HASH_PATH, relativePath, SOLA_SOLR_URL, SOLA_SOLR_CORE) =>
         body: xml,
       });
 
-      console.log("Completed");
       resolve();
     } catch (e) {
       reject(new Error(e));

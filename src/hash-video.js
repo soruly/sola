@@ -43,15 +43,17 @@ const {
       if (result[0].status === "NEW") {
         await knex("files").where("path", file).update({ status: "HASHING" });
         await hash(SOLA_FILE_PATH, SOLA_HASH_PATH, file);
+        console.log(`Completing ${SOLA_MQ_HASH} job for ${file}`);
         await knex("files").where("path", file).update({ status: "HASHED" });
       } else {
         console.log(`File status is [${result[0].status}] , skip`);
+        console.log(`Completing ${SOLA_MQ_HASH} job for ${file}`);
       }
       await knex.destroy();
       await channel.ack(msg);
-      console.log(`Completed ${SOLA_MQ_HASH} job for ${file}`);
-      await channel.assertQueue(SOLA_MQ_LOAD, { durable: false });
+
       console.log(`Submitting ${SOLA_MQ_LOAD} job for ${file}`);
+      await channel.assertQueue(SOLA_MQ_LOAD, { durable: false });
       await channel.sendToQueue(
         SOLA_MQ_LOAD,
         Buffer.from(

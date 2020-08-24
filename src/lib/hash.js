@@ -115,8 +115,6 @@ const hash = async (SOLA_FILE_PATH, SOLA_HASH_PATH, relativePath) => {
 
   console.log("Removing temp files");
   fs.removeSync(tempPath);
-
-  console.log("Completed");
 };
 
 module.exports = { hash };

@@ -47,6 +47,7 @@ const {
         await knex("files").where("path", file).update({ status: "LOADING" });
         try {
           await load(SOLA_HASH_PATH, file, SOLA_SOLR_URL, SOLA_SOLR_CORE);
+          console.log(`Completing ${SOLA_MQ_LOAD} job for ${file}`);
         } catch (e) {
           await knex("files").where("path", file).update({ status: "HASHED" });
           await knex.destroy();
@@ -54,6 +55,7 @@ const {
         }
         await knex("files").where("path", file).update({ status: "LOADED" });
         await knex.destroy();
+
         if (SOLA_TELEGRAM_ID && SOLA_TELEGRAM_URL) {
           console.log("Posting notification to telegram");
           await fetch(SOLA_TELEGRAM_URL, {
@@ -76,7 +78,6 @@ const {
         console.log(`File status is [${result[0].status}] , skip`);
       }
       await channel.ack(msg);
-      console.log(`Completed ${SOLA_MQ_LOAD} job for ${file}`);
       await new Promise((resolve) => {
         setTimeout(resolve, 200); // let the bullets fly awhile
       });

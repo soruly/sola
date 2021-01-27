@@ -77,39 +77,38 @@ For details, please refer to [Optimization and Tuning](#optimization-and-tuning)
 
 ## Prerequisites
 
-- Linux (tested on Fedora 29)
-- Node.js 10-11
+- Linux (tested on Fedora)
+- Node.js 12 or 14
 - ffmpeg
 - java
-- docker-compose
+- podman-compose
 
 ## Installing Prerequisites
 
-Fedora 29 is used as example
+Fedora is used as example
 
 ```
 # install rpmfusion (which provides ffmpeg)
 sudo dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
 sudo dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-# install Node.js, docker, ffmpeg and java
-sudo dnf install -y nodejs docker-compose ffmpeg java-1.8.0-openjdk
+# install Node.js, podman, ffmpeg and java
+sudo dnf install -y nodejs podman-compose ffmpeg java-1.8.0-openjdk
 ```
 
 Verify the installed versions:
 
 ```
 $ node -v
-v10.15.0
+v14.15.4
 $ ffmpeg -version
-ffmpeg version 4.0.3 Copyright (c) 2000-2018 the FFmpeg developers
+ffmpeg version 4.3.1 Copyright (c) 2000-2020 the FFmpeg developers
 $ java -version
-openjdk version "1.8.0_201"
-OpenJDK Runtime Environment (build 1.8.0_201-b09)
-OpenJDK 64-Bit Server VM (build 25.201-b09, mixed mode)
-$ docker -v
-Docker version 18.09.1, build 4c52b90
-$ docker-compose -v
-docker-compose version 1.22.0, build f46880f
+openjdk version "1.8.0_275"
+OpenJDK Runtime Environment (build 1.8.0_275-b01)
+OpenJDK 64-Bit Server VM (build 25.275-b01, mixed mode)
+$ podman-compose version
+podman-composer version  0.1.7dev
+podman version 2.2.1
 ```
 
 ### Raise ulimit
@@ -143,7 +142,7 @@ SOLA_DB_HOST=127.0.0.1                         # check if the database can conne
 SOLA_DB_PORT=3306                              # host port
 SOLA_DB_USER=sola                              #
 SOLA_DB_PWD=sola                               #
-SOLA_DB_NAME=sola                              # will create on docker-compose
+SOLA_DB_NAME=sola                              # will create on podman-compose
 
 # Solr setting
 SOLA_SOLR_HOME=/mnt/data/sola_solr_home/       # this must be chmod -R 777 for solr to create cores
@@ -173,7 +172,7 @@ SOLA_TELEGRAM_URL=                             # https://api.telegram.org/botxxx
 ### 3. Start docker containers
 
 ```
-docker-compose up -d
+podman-compose up -d
 ```
 
 This would pull and start 3 containers: mariaDB, RabbitMQ and Solr

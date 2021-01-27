@@ -15,26 +15,24 @@ const load = (SOLA_HASH_PATH, relativePath, SOLA_SOLR_URL, SOLA_SOLR_CORE) =>
 
     console.log("Parsing xml");
     const hashList = new xmldoc.XmlDocument(data).children
-      .filter(child => child.name === "doc")
-      .map(doc => {
-        const fields = doc.children.filter(child => child.name === "field");
+      .filter((child) => child.name === "doc")
+      .map((doc) => {
+        const fields = doc.children.filter((child) => child.name === "field");
         return {
-          time: parseFloat(
-            fields.filter(field => field.attr.name === "id")[0].val
-          ),
-          cl_hi: fields.filter(field => field.attr.name === "cl_hi")[0].val,
-          cl_ha: fields.filter(field => field.attr.name === "cl_ha")[0].val
+          time: parseFloat(fields.filter((field) => field.attr.name === "id")[0].val),
+          cl_hi: fields.filter((field) => field.attr.name === "cl_hi")[0].val,
+          cl_ha: fields.filter((field) => field.attr.name === "cl_ha")[0].val,
         };
       })
       .sort((a, b) => a.time - b.time);
 
     const dedupedHashList = [];
-    hashList.forEach(currentFrame => {
+    hashList.forEach((currentFrame) => {
       if (
         !dedupedHashList
           .slice(-24) // get last 24 frames
-          .filter(frame => currentFrame.time - frame.time < 2) // select only frames within 2 sec
-          .some(frame => frame.cl_hi === currentFrame.cl_hi) // check for exact match frames
+          .filter((frame) => currentFrame.time - frame.time < 2) // select only frames within 2 sec
+          .some((frame) => frame.cl_hi === currentFrame.cl_hi) // check for exact match frames
       ) {
         dedupedHashList.push(currentFrame);
       }
@@ -43,7 +41,7 @@ const load = (SOLA_HASH_PATH, relativePath, SOLA_SOLR_URL, SOLA_SOLR_CORE) =>
     const xml = [
       "<add>",
       dedupedHashList
-        .map(doc =>
+        .map((doc) =>
           [
             "<doc>",
             '<field name="id">',
@@ -55,35 +53,30 @@ const load = (SOLA_HASH_PATH, relativePath, SOLA_SOLR_URL, SOLA_SOLR_CORE) =>
             '<field name="cl_ha">',
             doc.cl_ha,
             "</field>",
-            "</doc>"
+            "</doc>",
           ].join("")
         )
         .join("\n"),
-      "</add>"
+      "</add>",
     ].join("\n");
 
     // fs.writeFileSync("debug.xml", xml);
 
     try {
-      const coreInfo = await fetch(
-        `${SOLA_SOLR_URL}admin/cores?wt=json`
-      ).then(res => res.json());
+      console.log("Deciding which solr core to upload");
+      const coreInfo = await fetch(`${SOLA_SOLR_URL}admin/cores?wt=json`).then((res) => res.json());
 
       const selectedCoreName = Object.values(coreInfo.status)
-        .filter(e => e.name.indexOf(`${SOLA_SOLR_CORE}_`) === 0)
+        .filter((e) => e.name.match(new RegExp(`${SOLA_SOLR_CORE}_\\d+`)))
         .sort((a, b) => a.index.numDocs - b.index.numDocs)[0].name; // choose least populated core
 
       console.log(`Uploading xml to solr core ${selectedCoreName}`);
-      await fetch(
-        `${SOLA_SOLR_URL}${selectedCoreName}/update?wt=json&commit=true`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "text/xml" },
-          body: xml
-        }
-      );
+      await fetch(`${SOLA_SOLR_URL}${selectedCoreName}/update?wt=json&commit=true`, {
+        method: "POST",
+        headers: { "Content-Type": "text/xml" },
+        body: xml,
+      });
 
-      console.log("Completed");
       resolve();
     } catch (e) {
       reject(new Error(e));

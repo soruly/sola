@@ -5,17 +5,13 @@ const fetch = require("node-fetch");
 
 const { SOLA_SOLR_URL, SOLA_SOLR_CORE } = process.env;
 
-const createCore = async coreName => {
+const createCore = async (coreName) => {
   console.log(`Check if solr core ${coreName} already loaded`);
-  const result = await fetch(`${SOLA_SOLR_URL}admin/cores?wt=json`).then(res =>
-    res.json()
-  );
+  const result = await fetch(`${SOLA_SOLR_URL}admin/cores?wt=json`).then((res) => res.json());
 
   if (Object.keys(result.status).includes(coreName)) {
     console.log(`Unloading existing core ${coreName}`);
-    await fetch(
-      `${SOLA_SOLR_URL}admin/cores?action=UNLOAD&core=${coreName}&wt=json`
-    );
+    await fetch(`${SOLA_SOLR_URL}admin/cores?action=UNLOAD&core=${coreName}&wt=json`);
   }
 
   const instanceDir = path.join("/opt/mysolrhome", coreName);
@@ -27,10 +23,10 @@ const createCore = async coreName => {
   fetch(
     `${SOLA_SOLR_URL}admin/cores?action=CREATE&name=${coreName}&instanceDir=${instanceDir}&configSet=/opt/mysolrhome`
   )
-    .then(response => {
+    .then((response) => {
       console.log(response);
     })
-    .catch(error => {
+    .catch((error) => {
       console.log(error);
     });
 };

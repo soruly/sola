@@ -14,7 +14,7 @@ const {
   SOLA_DB_PORT,
   SOLA_DB_USER,
   SOLA_DB_PWD,
-  SOLA_DB_NAME
+  SOLA_DB_NAME,
 } = process.env;
 
 (async () => {
@@ -26,8 +26,8 @@ const {
       port: SOLA_DB_PORT,
       user: SOLA_DB_USER,
       password: SOLA_DB_PWD,
-      database: SOLA_DB_NAME
-    }
+      database: SOLA_DB_NAME,
+    },
   });
 
   // console.log("Creating file table if not exist");
@@ -47,15 +47,15 @@ const {
   const args = process.argv[2] ? `-mmin -${process.argv[2]}` : "";
   const fileList = child_process
     .execSync(`find -L ${SOLA_FILE_PATH} -type f -name "*.mp4" ${args}`, {
-      maxBuffer: 1024 * 1024 * 100
+      maxBuffer: 1024 * 1024 * 100,
     })
     .toString()
     .split("\n")
-    .filter(each => each);
+    .filter((each) => each);
 
   console.log(`Found ${fileList.length} files, updating database...`);
   await fileList
-    .map(filePath => filePath.replace(SOLA_FILE_PATH, ""))
+    .map((filePath) => filePath.replace(SOLA_FILE_PATH, ""))
     .reduce((list, term, index) => {
       const i = Math.floor(index / concurrency);
       const j = index % concurrency;
@@ -69,12 +69,12 @@ const {
       (chain, group) =>
         chain.then(() =>
           Promise.all(
-            group.map(filePath =>
+            group.map((filePath) =>
               knex.raw(
                 knex("files")
                   .insert({
                     path: filePath,
-                    status: "NEW"
+                    status: "NEW",
                   })
                   .toString()
                   .replace(/^insert/i, "insert ignore")
@@ -86,12 +86,10 @@ const {
     );
 
   console.log("Looking for new files from database");
-  const newFiles = await knex("files")
-    .select("path")
-    .where("status", "NEW");
+  const newFiles = await knex("files").select("path").where("status", "NEW");
   console.log("Sending out hash jobs for new files");
   await newFiles
-    .map(each => each.path)
+    .map((each) => each.path)
     .reduce((list, term, index) => {
       const i = Math.floor(index / concurrency);
       const j = index % concurrency;
@@ -106,8 +104,8 @@ const {
         chain.then(() =>
           Promise.all(
             group.map(
-              filePath =>
-                new Promise(async resolve => {
+              (filePath) =>
+                new Promise(async (resolve) => {
                   const connection = await amqp.connect(SOLA_MQ_URL);
                   const channel = await connection.createChannel();
                   await channel.assertQueue(SOLA_MQ_HASH, { durable: false });
@@ -118,12 +116,12 @@ const {
                       JSON.stringify({
                         SOLA_FILE_PATH,
                         SOLA_HASH_PATH,
-                        file: filePath
+                        file: filePath,
                       })
                     ),
                     { persistent: false }
                   );
-                  await new Promise(res => {
+                  await new Promise((res) => {
                     setTimeout(res, 50);
                   });
                   await connection.close();
@@ -136,12 +134,10 @@ const {
     );
 
   console.log("Looking for new hashed files from database");
-  const newHash = await knex("files")
-    .select("path")
-    .where("status", "HASHED");
+  const newHash = await knex("files").select("path").where("status", "HASHED");
   console.log("Sending out load jobs for new hashes");
   await newHash
-    .map(each => each.path)
+    .map((each) => each.path)
     .reduce((list, term, index) => {
       const i = Math.floor(index / concurrency);
       const j = index % concurrency;
@@ -156,8 +152,8 @@ const {
         chain.then(() =>
           Promise.all(
             group.map(
-              filePath =>
-                new Promise(async resolve => {
+              (filePath) =>
+                new Promise(async (resolve) => {
                   const connection = await amqp.connect(SOLA_MQ_URL);
                   const channel = await connection.createChannel();
                   await channel.assertQueue(SOLA_MQ_LOAD, { durable: false });
@@ -170,12 +166,12 @@ const {
                         SOLA_HASH_PATH,
                         file: filePath,
                         SOLA_SOLR_URL,
-                        SOLA_SOLR_CORE
+                        SOLA_SOLR_CORE,
                       })
                     ),
                     { persistent: false }
                   );
-                  await new Promise(res => {
+                  await new Promise((res) => {
                     setTimeout(res, 50);
                   });
                   await connection.close();

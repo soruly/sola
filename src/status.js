@@ -16,7 +16,7 @@ const { SOLA_SOLR_URL, SOLA_SOLR_CORE } = process.env;
       numDocs: 0,
       maxDoc: 0,
       deletedDocs: 0,
-      size: "0 GB",
+      size: 0,
     },
   };
   for (let id in status) {
@@ -37,8 +37,9 @@ const { SOLA_SOLR_URL, SOLA_SOLR_CORE } = process.env;
     cores.total.numDocs += numDocs;
     cores.total.maxDoc += maxDoc;
     cores.total.deletedDocs += deletedDocs;
-    cores.total.size = Number(cores.total.size.split(" ")[0]) + Number(size.split(" ")[0]) + " GB";
+    cores.total.size += Number(size.split(" ")[0]);
   }
+  cores.total.size = `${cores.total.size.toFixed(2)} GB`;
 
   console.table(cores);
 })();

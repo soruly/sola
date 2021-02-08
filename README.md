@@ -1,10 +1,8 @@
 # sola
 
-[![Build Status](https://travis-ci.org/soruly/sola.svg?branch=master)](https://travis-ci.org/soruly/sola)
-[![](https://david-dm.org/soruly/sola/status.svg)](https://david-dm.org/soruly/sola)
-[![License](https://img.shields.io/github/license/soruly/sola.svg)](https://github.com/soruly/sola/blob/master/LICENSE)
-[![Discord](https://img.shields.io/discord/437578425767559188.svg)](https://discord.gg/K9jn6Kj)
-[![Donate](https://img.shields.io/badge/donate-patreon-orange.svg)](https://www.patreon.com/soruly)
+[![License](https://img.shields.io/github/license/soruly/sola.svg?style=flat-square)](https://github.com/soruly/sola/blob/master/LICENSE)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/soruly/sola/Node.js%20CI?style=flat-square)](https://github.com/soruly/sola/actions)
+[![Discord](https://img.shields.io/discord/437578425767559188.svg?style=flat-square)](https://discord.gg/K9jn6Kj)
 
 Scene search On Liresolr for Animation.
 

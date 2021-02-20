@@ -11,9 +11,6 @@ const {
   SOLA_DB_USER,
   SOLA_DB_PWD,
   SOLA_DB_NAME,
-  SOLA_DISCORD_URL,
-  SOLA_TELEGRAM_ID,
-  SOLA_TELEGRAM_URL,
 } = process.env;
 
 (async () => {
@@ -55,25 +52,6 @@ const {
         }
         await knex("files").where("path", file).update({ status: "LOADED" });
         await knex.destroy();
-
-        if (SOLA_TELEGRAM_ID && SOLA_TELEGRAM_URL) {
-          console.log("Posting notification to telegram");
-          await fetch(SOLA_TELEGRAM_URL, {
-            method: "POST",
-            body: new URLSearchParams([
-              ["chat_id", SOLA_TELEGRAM_ID],
-              ["parse_mode", "Markdown"],
-              ["text", "`" + file.split("/")[1] + "`"],
-            ]),
-          });
-        }
-        if (SOLA_DISCORD_URL) {
-          console.log("Posting notification to discord");
-          await fetch(SOLA_DISCORD_URL, {
-            method: "POST",
-            body: new URLSearchParams([["content", file.split("/")[1]]]),
-          });
-        }
       } else {
         console.log(`File status is [${result[0].status}] , skip`);
       }

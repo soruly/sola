@@ -161,10 +161,6 @@ SOLA_MQ_URL=amqp://sola:sola@127.0.0.1         # amqp://username:password@host
 SOLA_MQ_HASH=hash_video                        # RabbitMQ queue ID, will create automatically
 SOLA_MQ_LOAD=load_hash                         # RabbitMQ queue ID, will create automatically
 
-# Notification setting (leave empty to disable)
-SOLA_DISCORD_URL=                              # https://discordapp.com/api/webhooks/xxxxx/xxxxxxxxxxx
-SOLA_TELEGRAM_ID=                              # @your_channel_name
-SOLA_TELEGRAM_URL=                             # https://api.telegram.org/botxxxx:xxxxxxxx/sendMessage
 ```
 
 ### 3. Start docker containers

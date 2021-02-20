@@ -57,7 +57,6 @@ This scene can be found in `98693/[Neo.sub][Slow Start][07][GB][1080P].mp4` at t
 - Load pre-hashed files into multiple cores (balanced)
 - Frame deduplication
 - Watch folder and index new videos automatically
-- Post updates to telegram channel
 - Search multiple cores at once
 - Scalable to search 700 million frames in <3 seconds
 

@@ -12,9 +12,11 @@ const { SOLA_SOLR_URL, SOLA_SOLR_CORE } = process.env;
 
   const result = await Promise.all(
     Object.keys(solr.status) // get the names of all loaded cores
-      .filter((
-        coreName // select all cores of the prefix
-      ) => coreName.match(new RegExp(`${SOLA_SOLR_CORE}_\\d+`)))
+      .filter(
+        (
+          coreName // select all cores of the prefix
+        ) => coreName.match(new RegExp(`${SOLA_SOLR_CORE}_\\d+`))
+      )
       .map(
         (coreName) =>
           `${SOLA_SOLR_URL}${coreName}/lireq?&field=cl_ha&ms=false&accuracy=0&candidates=1000000&rows=10`

@@ -38,7 +38,7 @@
     "fs-extra": "^10.0.0",
     "glob": "^7.1.2",
     "knex": "^0.95.0",
-    "lzma-native": "^7.0.1",
+    "lzma-native": "^8.0.1",
     "mysql": "^2.16.0",
     "node-fetch": "^2.3.0",
     "uuid": "^8.0.0",

@@ -1,6 +1,6 @@
 require("dotenv").config();
 const path = require("path");
-const fetch = require("node-fetch");
+const fetch = (...args) => import("node-fetch").then(({ default: fetch }) => fetch(...args));
 const fs = require("fs-extra");
 
 const { SOLA_SOLR_URL, SOLA_SOLR_CORE } = process.env;

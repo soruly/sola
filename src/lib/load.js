@@ -1,6 +1,6 @@
 const path = require("path");
 const fs = require("fs-extra");
-const fetch = require("node-fetch");
+const fetch = (...args) => import("node-fetch").then(({ default: fetch }) => fetch(...args));
 const xmldoc = require("xmldoc");
 const lzma = require("lzma-native");
 

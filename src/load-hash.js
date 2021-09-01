@@ -1,6 +1,6 @@
 require("dotenv").config();
 const amqp = require("amqplib");
-const fetch = require("node-fetch");
+const fetch = (...args) => import("node-fetch").then(({ default: fetch }) => fetch(...args));
 const { URLSearchParams } = require("url");
 const { load } = require("./lib/load");
 const {

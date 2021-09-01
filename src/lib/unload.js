@@ -1,4 +1,4 @@
-const fetch = require("node-fetch");
+const fetch = (...args) => import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 const unload = (relativePath, SOLA_SOLR_URL, SOLA_SOLR_CORE) =>
   new Promise(async (resolve, reject) => {

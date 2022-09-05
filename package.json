@@ -41,7 +41,7 @@
     "lzma-native": "^8.0.1",
     "mysql": "^2.16.0",
     "node-fetch": "^3.0.0",
-    "uuid": "^8.0.0",
+    "uuid": "^9.0.0",
     "xmldoc": "^1.1.2"
   },
   "devDependencies": {

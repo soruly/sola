@@ -1,7 +1,7 @@
 # sola
 
 [![License](https://img.shields.io/github/license/soruly/sola.svg?style=flat-square)](https://github.com/soruly/sola/blob/master/LICENSE)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/soruly/sola/Node.js%20CI?style=flat-square)](https://github.com/soruly/sola/actions)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/soruly/sola/node.js.yml?style=flat-square)](https://github.com/soruly/sola/actions)
 [![Discord](https://img.shields.io/discord/437578425767559188.svg?style=flat-square)](https://discord.gg/K9jn6Kj)
 
 Scene search On Liresolr for Animation.
